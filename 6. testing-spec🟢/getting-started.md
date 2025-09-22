@@ -46,7 +46,7 @@ Quick links to essential topics in this guide:
 Before you start:
 
 - Basic understanding of [JavaScript](https://web.dev/learn/javascript)
-- Basic understanding [TypesScript](https://www.typescriptlang.org/docs/handbook/intro.html)
+- Basic understanding of [TypesScript](https://www.typescriptlang.org/docs/handbook/intro.html)
 
 ### 🎮 Usage
 
@@ -862,3 +862,15 @@ Now that you know the basics, you might want to explore:
 <!-- - [Spatial Testing](./spatial-testing.md) - Testing 3D and AR/VR applications -->
 
 Remember, good tests make your code more reliable, easier to refactor, and help you catch bugs before they reach production. Start simple, be consistent, and gradually add more sophisticated testing patterns as your application grows.
+
+📝 Uncommon Knowledge
+
+    If your test suite runs successfully without a bundler, it demonstrates that your code is independent of specific tools. With modern JS runtimes offering built-in test runners, there's no need to manage complex build processes just to run tests. 
+
+🔧 Runtime Support
+
+    ✅ InZero
+    ✅ Deno
+    ✅ Bun
+    ✅ Node.js
+    ✅ Modern Browsers (ES2022+)

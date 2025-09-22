@@ -2,12 +2,12 @@
 
 ## @in UDE Modules
 
-Think of @in UDE modules as individual LEGO bricks each one is a perfectly crafted, single-purpose piece that works independently right out of the box. No assembly required, no dependencies needed. But here's where the magic happens: when you connect these bricks together, they form a complete full-stack, universal, and cross-platform framework.
-Each @in module is like a specialized LEGO piece whether it's a wheel, a window, or a foundation block designed for one specific job and built to snap seamlessly with others. Every brick is useful on its own and comes with clear instructions, so you understand exactly what it does and how to use it.
+Think of `@in` UDE modules as individual LEGO bricks each one is a perfectly crafted, single-purpose piece that works independently right out of the box. No assembly required, no dependencies needed. But here's where the magic happens: when you connect these bricks together, they form a complete full-stack, universal, and cross-platform framework.
+Each `@in` module is like a specialized LEGO piece whether it's a wheel, a window, or a foundation block designed for one specific job and built to snap seamlessly with others. Every brick is useful on its own and comes with clear instructions, so you understand exactly what it does and how to use it.
 
 ## @inspatial/kit
 
-This is your complete LEGO castle kit. While @in modules are the individual bricks, @inspatial/kit is the finished masterpiece a fully assembled, ready-to-use structure that combines all those building blocks into one cohesive toolkit.
+This is your complete LEGO castle kit. While `@in` modules are the individual bricks, `@inspatial/kit` is the finished masterpiece a fully assembled, ready-to-use structure that combines all those building blocks into one cohesive toolkit.
 We chose this composable LEGO architecture because we know builders have different styles. Some developers love the creative process of selecting individual bricks and constructing something unique from the ground up. Others prefer to start with a pre-designed castle and get straight to adding their own creative touches.
 Whether you're a brick-by-brick builder or a complete-kit creator, we've got you covered.
 
@@ -30,7 +30,7 @@ Whether you're a brick-by-brick builder or a complete-kit creator, we've got you
 
 **In the InSpatial Ecosystem:**
 
-- **@inspatial/kit** = The only framework in our pipeline. It provides structure, opinions, and a complete development environment.
+- **@inspatial/kit** =  InSpatial Kit is a UDE client Framework. It provides structure, opinions, and a complete development environment. 
 - **@in modules** = Pure modules. They adapt to your world instead of forcing you into theirs.
 
 Think of it this way: frameworks are like moving into a fully furnished house with rules about where everything goes. Modules are like buying individual pieces of furniture that work in any house, with any style, following your rules.
@@ -40,12 +40,6 @@ Think of it this way: frameworks are like moving into a fully furnished house wi
 ---
 
 # IDE vs CDE vs UDE\*\*
-
-Here's a refined explanation of UDE vs IDE vs CDE:
-
----
-
-**UDE vs IDE vs CDE**
 
 **IDE (Integrated Development Environment)**
 
@@ -63,7 +57,7 @@ Here's a refined explanation of UDE vs IDE vs CDE:
 **UDE (Universal Development Environment)**
 
 - **Visual-first interface** - starts with drag-and-drop, visual editing
-- **Opinionated and focused** - specifically designed for anything that renders a graphical interface (apps, websites, games, xr)
+- **Opinionated and focused** - specifically designed for anything that renders a graphical user interface (apps, websites, games, xr)
 - **Accessible to non-coders** - project managers and designers can use it without coding knowledge
 - **Code mode available** - developers can switch to traditional coding interface when needed
 - **Intelligence built-in** - comes bundled with LLMs for AI assistance
@@ -77,8 +71,6 @@ All Development environemnt have a `Text/Code Editor` built in but there are maj
 - **UDE**: "Here's a visual interface to build apps, websites, xr and games - code if you want to, but you don't have to"
 
 UDEs can be considered as opinionated higher-level abstraction of IDEs, however they are visual first. This makes development accessible to non-coders in a way an IDE/CDE cannot. 
-
-Here's a refined explanation of why InSpatial chose to create its own JSX runtime instead of building on React:
 
 # InSpatial Kit vs InSpatial Cloud vs InSpatial
 

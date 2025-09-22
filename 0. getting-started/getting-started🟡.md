@@ -38,7 +38,7 @@ InSpatial Kit is a (UDE) framework for building cross-platform interfaces. to un
 
 7. Building For Dev & Production
 
-8. Store
+8. Distribution
 
 - Apps
 - Extensions

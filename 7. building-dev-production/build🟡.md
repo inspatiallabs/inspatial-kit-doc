@@ -17,6 +17,71 @@ You have several options for building your app for development and production. I
 - **InVite** (for Vite integration)
 - **InPack** (for Webpack, Rspack, or similar bundlers)
 
+## Getting Started
+
+### 🎯 Prerequisites
+
+Before you start:
+
+- Basic understanding of [JavaScript](https://web.dev/learn/javascript)
+- Basic understanding of [TypesScript](https://www.typescriptlang.org/docs/handbook/intro.html)
+- Basic understanding of [CLI](https://developer.mozilla.org/en-US/docs/Learn_web_development/Getting_started/Environment_setup/Command_line)
+- Basic understanding of [Renderers](../1.%20graphical-user-interface/rendering/)
+- Basic understanding of [Runtimes](../1.%20graphical-user-interface/runtime-markup🟡.md/)
+
+### 🎮 Usage
+
+#### Basic Import
+
+```typescript
+// ✅ Recommended: Direct import from kit
+import { InServe, InVite, InPack } from "@inspatial/kit/build";
+
+// ❌ Avoid: Package-level import
+import { InServe, InVite, InPack } from "@inspatial/kit";
+```
+
+<details>
+<summary>📦 Installation for Framework Authors</summary>
+
+If you're building a framework or library that needs to include testing & specifications:
+
+```bash
+deno install jsr:@in/build
+```
+
+##
+
+```bash
+npx jsr add @in/build
+```
+
+##
+
+```bash
+yarn dlx jsr add @in/build
+```
+
+##
+
+```bash
+pnpm dlx jsr add @in/build
+```
+
+##
+
+```bash
+bunx jsr add @in/build
+```
+
+##
+
+```bash
+vlt install jsr:@in/build
+```
+
+</details>
+
 ## InServe (Founders Choice)
 
 #### A simple, dev server and smart builder for your app
@@ -30,7 +95,7 @@ InSpatial Serve automatically monitor your files, rebuild anything that changes,
 ```typescript
 // render.ts
 import { createRenderer } from "@inspatial/kit/renderer";
-import { InServe } from "@in/build";
+import { InServe } from "@inspatial/kit/build";
 
 createRenderer({
   extensions: [InServe()],
@@ -231,7 +296,7 @@ Use `InVite` plugin for Vite. Create a `vite.config.ts` file and add the followi
 
 ```typescript
 import { defineConfig } from "vite";
-import { InVite } from "@in/build";
+import { InVite } from "@inspatial/kit/build";
 
 export default defineConfig({
   server: {
@@ -285,7 +350,7 @@ Use the `InPack` plugin for Webpack and/or RSPack/RSBuild
 
 ```javascript
 import { defineConfig } from "@rsbuild/core";
-import { InPack } from "@in/build";
+import { InPack } from "@inspatial/kit/build";
 
 export default defineConfig({
   plugins: [InPack()],
