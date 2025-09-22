@@ -20,9 +20,8 @@ The beauty of signals is that they handle all the complexity of tracking depende
 
 Before you start:
 
-- Basic understanding of JavaScript/TypeScript
-- Familiarity with reactive programming concepts (helpful but not required)
-- No framework dependencies or special setup required
+- Basic understanding of [JavaScript](https://web.dev/learn/javascript)
+- Basic understanding [TypesScript](https://www.typescriptlang.org/docs/handbook/intro.html)
 
 ### ⚠️ Important Notes
 
@@ -88,6 +87,11 @@ pnpm dlx jsr add @in/teract
 
 ```bash
 bunx jsr add @in/teract
+```
+##
+
+```bash
+vlt install @in/teract
 ```
 
 </details>
