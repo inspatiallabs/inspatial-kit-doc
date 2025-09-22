@@ -1,48 +1,140 @@
 # Styling
 
-InSpatial Style Sheet (ISS) or `@inspatial/style` is built on InSpatial's `@in/style`module a variant based styling engine largely inspired by Stiches.
-.....
+#### A universal style engine that works everywhere your app does
 
-// Quick Create
+So you've built your InSpatial widgets and components and now it's time to make them look amazing. This page is your guide from basic styling to sophisticated design systems that work seamlessly across web, mobile, and spatial environments. Think of it like learning to paint: you start with simple brushstrokes, then master advanced techniques that let you create beautiful, consistent experiences everywhere.
 
-// Quick Use
+In development, you want styling that's fast to write and easy to iterate on. In production, you want styles that are performant, maintainable, and work reliably across all platforms. InSpatial Style gives you both: an intuitive API for rapid prototyping and a powerful engine underneath that handles cross-platform optimization, transpilation, theme switching, fonts, and design system consistency automatically.
 
-.....
+InSpatial Style Sheet (ISS) brings together the best of CSS-in-JS and utility-first styling with a twist: everything is designed for universal deployment. You write styles once using familiar patterns, and the system automatically adapts them for web browsers, mobile apps, XR and games without you having to think about platform differences.
 
-## Concepts
+> **Terminology:**
+>
+> - **ISS (InSpatial Style Sheet)**: The universal styling system that compiles your styles for any platform.
+> - **Variant Authority**: The precedence system that determines which styles win when multiple approaches are combined.
+> - **Cross-Style Composition**: Advanced pattern where one component's styles react to another component's settings.
+> - **Reactive Style**: Styles that automatically update when your application state changes.
 
-#### Lazy Styling (Anti-Pattern/Escape Hatch)
+## Getting Started
 
-Lazy styling allows you to pass multiple style prop in a single component
-Styling can also be done by calling multiple direct style props e.g
+### 🎯 Prerequisites
 
-```typescript
-// ❌  DON'T DO THIS
-<Component
-  style:color="black"
-  style:background-color="yellow"
-  style:font-size="20px"
-  style:z-index="2147483646"
-/>
+Before you start:
+
+- Basic understanding of [CSS](https://web.dev/learn/css)
+- Basic understanding of [Widgets/Components](../1.%20graphical-user-interface/widgets-components🟡.md/)
+
+### 🎮 Usage
+
+#### 1. Creating (Inline) Styles
+
+```jsx
+import { View } from "@inspatial/kit/widget"; // can be any component including traditional divs
+
+// with style prop
+<View
+  style={{
+    web: { backgroundColor: "green" },
+    ios: { backgroundColor: "yellow" }, // ⚠️ Experimental
+    visionOS: { backgroundColor: "orange" }, // ⚠️ Experimental
+    android: { backgroundColor: "red" } // ⚠️ Experimental
+    androidXR: { backgroundColor: "maroon" } // ⚠️ Experimental
+    horizonOS: { backgroundColor: "pink" } // ⚠️ Experimental
+  }}
+/>;
+
 ```
 
-
-
-While this approach is available, it should mainly be used as an "escape hatch" for special cases. Using multiple direct style props assumes you are only targeting the web, lacks types-safety and can lead to anti-patterns such as parsing the same style prop multiple times within a single component. Prefer the standard reactive style and className patterns for most use cases. If you choose to use this pattern only use it for one style prop e.g
-
-```typescript
-// ✅ DO THIS
-<Componen style:z-index="2147483646" />
+```jsx
+// with class/ClassName
+<View className="bg-green"/>;
 ```
 
-- **Styling Dynamic Elements:** For dynamically styled elements, leverage InSpatial's browser preset capabilities for conditional classes (`class:active={signal}`) and inline styles (`style:property={value}`) to ensure styles update correctly with state changes. \* \*\*Soon...
+#### 2. Creating (External) Styles
+
+```typescript
+// ✅ Recommended: Direct import from kit
+import { createStyle, } from "@inspatial/kit/style";
+
+// ❌ Avoid: Package-level import
+import { createStyle } from "@inspatial/kit";
+
+//style.ts
+export const MyStyle = createStyle({
+  base: [
+    "my_cutom_style_selector_that_can_be_tailwind_utils", // optional custom style-selectors
+    {
+      web: { backgroundColor: "green" },
+      ios: { backgroundColor: "yellow" }, // ⚠️ Experimental
+      visionOS: { backgroundColor: "orange" }, // ⚠️ Experimental
+      android: { backgroundColor: "red" } // ⚠️ Experimental
+      androidXR: { backgroundColor: "maroon" } // ⚠️ Experimental
+      horizonOS: { backgroundColor: "pink" } // ⚠️ Experimental
+    },
+  ]
+})
+```
+
+```jsx
+//window.tsx
+import { MyStyle } from "./style.ts"
+
+function MyComponent(){
+  return (
+    <View className={MyStyle.getStyle({ className, ...rest })}>
+  )
+}
+```
+
+<details>
+<summary>📦 Installation for Framework Authors</summary>
+
+If you're building a framework or library that needs to include physics & motion:
+
+```bash
+deno install jsr:@in/style
+```
+
+##
+
+```bash
+npx jsr add @in/style
+```
+
+##
+
+```bash
+yarn dlx jsr add @in/style
+```
+
+##
+
+```bash
+pnpm dlx jsr add @in/style
+```
+
+##
+
+```bash
+bunx jsr add @in/style
+```
+
+##
+
+```bash
+vlt install jsr:@in/style
+```
+
+</details>
+
+---
 
 ## Style Creation: (Variant Authority)
 
-`@in/style/variant` enables object/web style injection, compiling all style keys into unique CSS classes (e.g., .in-abc123) that are injected once into a `<style data-in-variant>` tag. With the `createStyle()` API, you can write both CSS and Tailwind-like styles directly in TypeScript, not in `.css` files. InSpatial Kit Widgets & Components use these utilities, but they are not traditional CSS or Tailwind—they are compiled and applied at runtime based on your platform and render target. If TailwindCSS is installed, InSpatial will use its utilities; otherwise, it falls back to standard CSS. The styles you write look like Tailwind or CSS, but are managed by the InSpatial Style Sheet (ISS) system, which handles platform-specific transpilation for you.
+InSpatial Style Sheet enables object style injection, compiling all style keys into unique cascading style sheets classes (e.g., .in-abc123) that are injected once into a `<style data-in-variant>` tag. With the `createStyle()` API, you can write both CSS and Tailwind-like styles directly in TypeScript, not in `.css` files. InSpatial Kit Widgets & Components use these utilities, but they are not traditional CSS or Tailwind—they are transpiled and applied at runtime based on your platform and render target. If TailwindCSS is installed, InSpatial will use its utilities; otherwise, it falls back to standard CSS. The styles you write look like Tailwind or CSS, but are managed by the InSpatial Style Sheet (ISS) system, which handles platform-specific transpilation for you.
 
 ```typescript
-import { createStyle } from "@in/style/variant";
+import { createStyle } from "@inspatial/kit/style";
 
 export const IconStyle = createStyle({
   base: [
@@ -85,8 +177,6 @@ export const IconStyle = createStyle({
   },
 });
 ```
-
-The example above demonstrates how InSpatial Kit and Widgets support both CSS and Tailwind utility styles for maximum flexibility and platform agnosticism at a low level. However, when building higher-level InSpatial applications, it's recommended to consistently use either CSS or Tailwind utilities, rather than mixing both, to keep your styles clear and maintainable. Use Tailwind utilities if installed, otherwise use CSS utilities.
 
 ### `Class` utilities vs `Style` Properties
 
@@ -194,7 +284,7 @@ The style system provides the `getStyle` method for applying style styles. This 
 ##### Example Usage
 
 ```typescript
-import { createStyle, type StyleProps } from "@in/style/variant";
+import { createStyle, type StyleProps } from "@inspatial/kit/style";
 
 // Create a button style
 const ButtonStyle = createStyle({
@@ -269,7 +359,7 @@ const styleClass = HeaderWidgetStyle.getStyle({
 **✅ Do this**
 
 ```typescript
-import { createStyle, type StyleProps } from "@in/style/variant";
+import { createStyle, type StyleProps } from "@inspatial/kit/style";
 
 export const HeaderWidgetStyle = createStyle({
   base: "inline-flex cursor-auto",
@@ -318,7 +408,7 @@ className={iss(
 
 ```typescript
 import { iss } from "@inspatial/kit/style"
-// ✅ (Simpler Requires Importing ISS from the `@in/style` or  `@inspatial/kit/style` module)
+// ✅ (Simpler Requires Importing ISS from the `@inspatial/kit/style` or  `@inspatial/kit/style` module)
 className={iss(className)} {...rest}
 
 
@@ -468,6 +558,29 @@ export const MyStyle = createStyle({
 });
 ```
 
+### Lazy Styling (Anti-Pattern/Escape Hatch)
+
+Lazy styling allows you to pass multiple style prop in a single component
+Styling can also be done by calling multiple direct style props e.g
+
+```typescript
+// ❌  DON'T DO THIS
+<Component
+  style:color="black"
+  style:background-color="yellow"
+  style:font-size="20px"
+  style:z-index="2147483646"
+/>
+```
+
+While this approach is available, it should mainly be used as an "escape hatch" for special cases. Using multiple direct style props assumes you are only targeting the web, lacks types-safety and can lead to anti-patterns such as parsing the same style prop multiple times within a single component. Prefer the standard reactive style and className patterns for most use cases. If you choose to use this pattern only use it for one style prop e.g
+
+```typescript
+// ✅ DO THIS
+<Component style:z-index="2147483646" />
+```
+
+- **Styling Dynamic Elements:** For dynamically styled elements, leverage InSpatial's browser preset capabilities for conditional classes (`class:active={signal}`) and inline styles (`style:property={value}`) to ensure styles update correctly with state changes. \* \*\*Soon...
 
 ### Styles as Constants
 
@@ -486,7 +599,7 @@ Reusable style constants are like labeled toolboxes. Instead of rebuilding the s
 
 ```ts
 // @in/widget/theme/style.ts
-import { createStyle } from "@in/style";
+import { createStyle } from "@inspatial/kit/style";
 
 export const ThemeRadius = {
   base: [{ web: { borderRadius: "12px" } }],
@@ -505,7 +618,7 @@ export const ThemeStyle = createStyle({
 
 ```ts
 // @in/widget/ornament/kit-border/style.ts
-import { createStyle } from "@in/style/variant";
+import { createStyle } from "@inspatial/kit/style";
 import { ThemeRadius } from "@in/widget/theme/style.ts"; // direct file import
 
 export const KitBorderStyle = createStyle({
@@ -522,7 +635,7 @@ export const KitBorderStyle = createStyle({
 
 ```ts
 // @in/widget/ornament/button/style.ts
-import { createStyle } from "@in/style/variant";
+import { createStyle } from "@inspatial/kit/style";
 
 export const ButtonStyle = createStyle({
   // base + settings ...
@@ -537,7 +650,7 @@ export const ButtonOutlineSmStyle = ButtonStyle.getStyle({
 
 ```tsx
 // usage
-import { iss } from "@in/style";
+import { iss } from "@inspatial/kit/style";
 import { Button, ButtonOutlineSmStyle } from "@in/widget/ornament/button";
 
 <Button className={iss(ButtonOutlineSmStyle)}>Outline</Button>;
@@ -554,8 +667,6 @@ import { Button, ButtonOutlineSmStyle } from "@in/widget/ornament/button";
 - Don’t use package‑level imports when a direct file import exists. Prefer `@in/.../style.ts`.
 - Don’t export empty settings objects; provide at least one option (even an empty string) to satisfy types.
 - Don’t mix unrelated concerns in a single constant; keep variables (like `ThemeRadius`) separate from full component styles (like `KitBorderStyle`).
-
-
 
 #### Variable ($) Shorthand
 
@@ -857,7 +968,7 @@ const handle = createStyle({
 
 ✨ **Automatic Cross-Reference** - InSpatial's style system automatically handles cross-style composition when styles have `name` properties and use `$style-name.prop` references:
 
-```typescript
+```jsx
 import { iss } from "@inspatial/kit/style";
 
 // ✅ Automatic composition - just works!
@@ -1065,7 +1176,7 @@ Key ideas:
 Example: simple checkbox indicator (utilities + one nested selector)
 
 ```typescript
-import { createStyle, type StyleProps } from "@in/style/variant";
+import { createStyle, type StyleProps } from "@inspatial/kit/style";
 
 export const CheckboxStyle = {
   indicator: createStyle({
@@ -1107,7 +1218,7 @@ Reactive Style simply means: when your component’s state flips, your styles fl
 ### The First Principle: Derive a prop from state
 
 ```tsx
-import { createStyle } from "@in/style";
+import { createStyle } from "@inspatial/kit/style";
 import { createState, $ } from "@inspatial/state";
 
 // 1) Define a simple style that switches on a prop

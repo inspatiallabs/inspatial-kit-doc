@@ -1,4 +1,4 @@
-## InMotion
+## Motion
 
 #### A universal motion engine that animates anything, everywhere
 
@@ -46,6 +46,7 @@ import { InMotion } from "@inspatial/kit/motion";
 ```jsx
 //render.ts
 import { InMotion } from "@inspatial/kit/motion";
+import { createRenderer } from "@inspatial/kit/renderer";
 
 createRenderer({
   extensions: [InMotion()],
@@ -126,9 +127,9 @@ Combine tokens inside `data-inmotion` to describe the effect:
 import { View } from "@inspatial/kit/widget"
 
 <View data-inmotion="fade-u" />
-<!-- Upwards fade-in -->
+// Upwards fade-in
 <View data-inmotion="fade-dr" />
-<!-- Diagonal down-right -->
+// Diagonal down-right
 ```
 
 Optional numeric tuning after the token controls distance (percent):
@@ -137,9 +138,9 @@ Optional numeric tuning after the token controls distance (percent):
 import { View } from "@inspatial/kit/widget"
 
 <View data-inmotion="fade-40" />
-<!-- 40% movement -->
+// 40% movement
 <View data-inmotion="fade-30-60" />
-<!-- X:30% Y:60% -->
+// X:30% Y:60%
 ```
 
 #### Zoom In / Zoom Out
@@ -148,9 +149,9 @@ import { View } from "@inspatial/kit/widget"
 import { View } from "@inspatial/kit/widget"
 
 <View data-inmotion="zoomin" />
-<!-- Zoom into place -->
+// Zoom into place
 <View data-inmotion="zoomout-r" />
-<!-- Zoom out from right offset -->
+// Zoom out from right offset
 ```
 
 Tuning values: one value = intensity, or provide movement plus intensity:
@@ -159,11 +160,11 @@ Tuning values: one value = intensity, or provide movement plus intensity:
 import { View } from "@inspatial/kit/widget"
 
 <View data-inmotion="zoomin-30" />
-<!-- intensity 30% -->
+// intensity 30%
 <View data-inmotion="zoomout-40-60" />
-<!-- move 40%, intensity 60% -->
+// move 40%, intensity 60%
 <View data-inmotion="zoomin-30-50-80" />
-<!-- X:30% Y:50% intensity:80% -->
+// X:30% Y:50% intensity:80%
 ```
 
 #### Flip (3D)
@@ -172,9 +173,9 @@ import { View } from "@inspatial/kit/widget"
 import { View } from "@inspatial/kit/widget"
 
 <View data-inmotion="flip-u" />
-<!-- Flip over X-axis (up) -->
+// Flip over X-axis (up)
 <View data-inmotion="flip-l" />
-<!-- Flip over Y-axis (left) -->
+// Flip over Y-axis (left)
 ```
 
 Tuning values: angle and perspective (rem):
@@ -183,9 +184,9 @@ Tuning values: angle and perspective (rem):
 import { View } from "@inspatial/kit/widget"
 
 <View data-inmotion="flip-120" />
-<!-- 120° angle, default perspective -->
+// 120° angle, default perspective
 <View data-inmotion="flip-90-60" />
-<!-- 90° angle, 60rem perspective -->
+// 90° angle, 60rem perspective
 ```
 
 ### Split Animations
@@ -259,24 +260,107 @@ import { View } from "@inspatial/kit/widget"
 
 ### InMotion Triggers
 
-InMotion dispatches Trigger events you can listen to directly.
+InMotion dispatches Trigger events you can listen to directly using InSpatial's trigger prop system.
 
-- Trigger events: `inmotion:start`, `inmotion:end`, `inmotion:progress`
-- Detail payload:
-  - `id?: string`, `ratio: number`, `time: number`, `duration: number`, `direction: "forward" | "reverse"`
+#### Available Triggers
 
-InSpatial trigger props (recommended):
+**`on:motionstart`** - Fires when an animation begins
+
+- **When**: Animation starts (after any delay)
+- **Detail**: `{ id?: string }` - Element's motion ID if set
+- **Use case**: Show loading states, start related animations, analytics
+
+**`on:motionend`** - Fires when an animation completes
+
+- **When**: Animation finishes (including all iterations if looped)
+- **Detail**: `{ id?: string }` - Element's motion ID if set
+- **Use case**: Chain animations, cleanup, show completion states
+
+**`on:motionprogress`** - Fires during animation playback
+
+- **When**: Continuously during animation (every ~2% progress change)
+- **Detail**: `{ id?: string, ratio: number, time: number, duration: number, direction: "forward" | "reverse" }`
+- **Use case**: Progress bars, synchronized effects, real-time updates
+
+#### Usage Examples
 
 ```jsx
-import { View } from "@inspatial/kit/widget";
+import { View, Text } from "@inspatial/kit/widget";
+import { performance } from "@inspatial/kit/test";
 
+// Basic trigger usage
+<View
+  data-inmotion="fade-u duration-1000"
+  on:motionstart={() => console.log("Animation started!")}
+  on:motionend={() => console.log("Animation finished!")}
+/>
+
+// Progress tracking
+<View
+  data-inmotion="slide-r duration-2000"
+  on:motionprogress={(e) => {
+    const { ratio, time, duration, direction } = e.detail;
+    console.log(`${Math.round(ratio * 100)}% complete`);
+    console.log(`${time}ms of ${duration}ms (${direction})`);
+  }}
+/>
+
+// Chaining animations
+<View
+  data-inmotion="zoomin duration-800"
+  on:motionend={() => {
+    // Start next animation or show content
+    setShowNextElement(true);
+  }}
+/>
+
+// Analytics and tracking
 <View
   data-inmotion="fade-u"
-  on:motionstart={(e) => console.log("start", e.detail)}
-  on:motionend={(e) => console.log("end", e.detail)}
-  on:motionprogress={(e) => console.log("progress", e.detail)}
-/>;
+  data-inmotion-id="hero-banner"
+  on:motionstart={(e) => {
+    analytics.track("animation_started", {
+      element: e.detail.id
+    });
+  }}
+/>
 ```
+
+#### Advanced Trigger Patterns
+
+```jsx
+// Synchronized animations
+<View
+  data-inmotion="fade-u duration-1000"
+  on:motionprogress={(e) => {
+    // Sync another element's opacity with this animation
+    setOtherElementOpacity(e.detail.ratio);
+  }}
+/>
+
+// Loop control
+<View
+  data-inmotion="bounce loop-mirror"
+  on:motionend={(e) => {
+    if (shouldStopBouncing) {
+      // Programmatically stop the loop
+      e.target.setAttribute('data-inmotion', 'bounce');
+    }
+  }}
+/>
+
+// Performance monitoring
+<View
+  data-inmotion="complex-timeline duration-3000"
+  on:motionstart={() => performance.mark('animation-start')}
+  on:motionend={() => {
+    performance.mark('animation-end');
+    performance.measure('animation-duration', 'animation-start', 'animation-end');
+  }}
+/>
+```
+
+> **Note:** All triggers bubble up the DOM Renderer tree, so you can listen for motion events on parent containers to handle multiple animated children.
 
 ### Custom Timeline: `line-[…]`
 
@@ -337,21 +421,21 @@ import { View } from "@inspatial/kit/widget"
 ```jsx
 import { View } from "@inspatial/kit/widget"
 
-<!-- Gentle effects -->
+// Gentle effects
 <View data-inmotion="fade">Standard fade distance</View>
 <View data-inmotion="fade-10">Minimal fade distance</View>
 
-<!-- Bold effects -->
+// Bold effects
 <View data-inmotion="zoomin">Standard zoom scale</View>
 <View data-inmotion="zoomin-75">Strong zoom scale</View>
 
-<!-- Advanced multi-parameter control -->
+// Advanced multi-parameter control
 <View data-inmotion="fade-dr-60-40">Corner fade with custom X/Y offsets</View>
 <View data-inmotion="zoomout-20-30-70">
   Precise zoom with movement and scale control
 </View>
 
-<!-- 3D rotation examples -->
+// 3D rotation examples
 <View data-inmotion="flip">Standard rotation with default depth</View>
 <View data-inmotion="flip-180-50">Half-turn rotation with enhanced depth</View>
 <View data-inmotion="flip-udlr-120-80">
