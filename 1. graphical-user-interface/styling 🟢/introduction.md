@@ -1,7 +1,5 @@
 # Styling
 
-#### A universal style engine that works everywhere your app does
-
 So you've built your InSpatial widgets and components and now it's time to make them look amazing. This page is your guide from basic styling to sophisticated design systems that work seamlessly across web, mobile, and spatial environments. Think of it like learning to paint: you start with simple brushstrokes, then master advanced techniques that let you create beautiful, consistent experiences everywhere.
 
 In development, you want styling that's fast to write and easy to iterate on. In production, you want styles that are performant, maintainable, and work reliably across all platforms. InSpatial Style gives you both: an intuitive API for rapid prototyping and a powerful engine underneath that handles cross-platform optimization, transpilation, theme switching, fonts, and design system consistency automatically.
@@ -14,6 +12,7 @@ InSpatial Style Sheet (ISS) brings together the best of CSS-in-JS and utility-fi
 > - **Variant Authority**: The precedence system that determines which styles win when multiple approaches are combined.
 > - **Cross-Style Composition**: Advanced pattern where one component's styles react to another component's settings.
 > - **Reactive Style**: Styles that automatically update when your application state changes.
+> - **Shaders**: Programs/Styles that run on the GPU to control advanced visual effects, such as lighting, gradients etc...
 
 ## Getting Started
 
@@ -133,5 +132,5 @@ vlt install jsr:@in/style
 
 Now that you know the basics, you might want to explore:
 
-- [Style Creation](./style-creation.md) - Advanced style creation for production
+- [ISS](./iss.md) - Advanced style creation for production
 - [Fonts & Typography](./font-typography.md) - comprehensive typography system

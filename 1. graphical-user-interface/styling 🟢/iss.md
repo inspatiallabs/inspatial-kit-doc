@@ -1,13 +1,18 @@
-## Style Creation: (Variant Authority)
+## InSpatial Style Sheet (ISS)
 
-InSpatial Style Sheet enables object style injection, compiling all style keys into unique cascading style sheets classes (e.g., .in-abc123) that are injected once into a `<style data-in-variant>` tag. With the `createStyle()` API, you can write both CSS and Tailwind-like styles directly in TypeScript, not in `.css` files. InSpatial Kit Widgets & Components use these utilities, but they are not traditional CSS or Tailwind—they are transpiled and applied at runtime based on your platform and render target. If TailwindCSS is installed, InSpatial will use its utilities; otherwise, it falls back to standard CSS. The styles you write look like Tailwind or CSS, but are managed by the InSpatial Style Sheet (ISS) system, which handles platform-specific transpilation for you.
+InSpatial Style Sheet (ISS) is a universal styling system designed for cross-platform development. It allows you to write styles in a familiar, object-based or utility-first format (similar to CSS or Tailwind), directly in TypeScript. ISS compiles these styles into unique, platform-optimized CSS classes and injects them automatically, ensuring your app looks consistent and performs well on web, mobile, and spatial platforms. With ISS, you don't need to manage separate CSS files or worry about platform differences—the system handles all the heavy lifting for you.
+
+ISS enables object style injection by compiling your style definitions into unique CSS classes (e.g., .in-abc123), which are injected once into a `<style data-in-variant>` tag. With the `createStyle()` API, you write styles in TypeScript using familiar CSS or Tailwind-like syntax—no separate `.css` files needed. These utilities are used by InSpatial Kit Widgets & Components, but unlike traditional CSS or Tailwind, they are transpiled and applied at runtime for your specific platform and render target. If TailwindCSS is present, its utilities are used; otherwise, standard CSS is applied. Regardless of syntax, all styles are managed and platform-optimized by the InSpatial Style Sheet (ISS) system.
+
+## Style Creation: (Variant Authority)
+The example below demonstrates how you can use both style objects and class utilities together. They may appear duplicated, but there is no conflict. Style props always take precedence over class utilities. This will be explained in more detail in a later chapter. 
 
 ```typescript
 import { createStyle } from "@inspatial/kit/style";
 
 export const IconStyle = createStyle({
   base: [
-    "inline-block items-center",
+    "inline-block items-center", 
     { web: { display: "inline-block", alignItems: "center" } },
   ],
   settings: {
@@ -47,6 +52,77 @@ export const IconStyle = createStyle({
 });
 ```
 
+### Working with CSS Varaibles
+
+You might have noticed in the example above that we used **"var(--muted)"** for the color property. This is intentional. ISS is designed as a superset of CSS, much like how TypeScript extends JavaScript. This means you can define variables in a `.css` file and then reference them directly in your ISS `style.ts` files. For example, let's define our variables in an `app.css` file and use them throughout our styles.
+
+```css
+:root {
+  /*****************(BRAND)*****************/
+
+  --brand: hsla(274, 100%, 50%, 1);
+
+  /*****************(Light Mode)*****************/
+
+  --window: hsla(0, 0%, 100%, 0.3);
+  --surface: hsla(0, 0%, 100%, 0.7);
+  --background: hsla(228, 52%, 96%, 1);
+  --primary: hsla(231, 42%, 15%, 1);
+  --secondary: hsla(224, 46%, 89%, 1);
+  --muted: hsla(228, 52%, 96%, 1);
+  --invert: hsla(0, 0%, 100%, 1);
+}
+/*****************(Dark Mode)*****************/
+
+[data-theme="dark"] {
+  --window: hsla(229, 41%, 18%, 0.3);
+  --surface: hsla(229, 41%, 18%, 0.6);
+  --background: hsla(233, 44%, 12%, 1);
+  --primary: hsla(0, 0%, 100%, 1);
+  --secondary: hsla(232, 31%, 29%, 1);
+  --muted: hsla(233, 44%, 12%, 0.25);
+  --invert: hsla(231, 42%, 15%, 1);
+}
+```
+
+#### Tailwind Variables
+
+If you are dependedent on Tailwind you might want To use the InSpatial preconfigured style presets (`kit.css`), you can either generate them via the InSpatial CLI or copy them directly from the documentation or a starter template. Though you should not directly update the `kit.css` file you can import it in your own `app.css` file like so:
+
+```css
+@import "./kit.css"; /** ✅ Do This For InSpatial Mapping **/
+@theme {
+}
+@layer base {
+}
+@layer components {
+}
+@layer utilities {
+}
+```
+
+- @import if you prefer to use the tailwindCSS defaults import
+
+```css
+@import "tailwindcss"; /**❌ Works but Not Recommended use the InSpatial `kit.css` mappings**/
+```
+
+- **`@theme {}`** → Used in InSpatial to define global CSS variables, similar to how `:root {}` works in standard CSS or the `theme` section in TailwindCSS. This is where you declare your design tokens and color variables.
+
+- **`@layer base {}`** → Used to define base styles that apply globally, such as resets, typography, and foundational element styles.
+
+- **`@layer components {}`** → Used for component-level styles, such as buttons, cards, and other UI elements.
+
+- **`@layer utilities {}`** → Used for utility classes that provide single-purpose styling, similar to Tailwind utility classes (e.g., margin, padding, text color).
+
+See [TailwindCSS](https://tailwindcss.com/docs/theme) for more info
+
+#### You Might Not Need Pre-processors
+
+> **Terminology:** A “Pre-processor” is a tool or software layer (like Sass, Less, or Stylus) that processes your CSS code before it reaches the browser. It allows you to use features such as variables, nesting, mixins, and functions that aren't natively available in standard CSS. The pre-processor compiles this enhanced syntax into regular CSS that browsers can understand.
+
+Modern CSS has evolved to include powerful features such as variables, nesting, and custom properties, which significantly reduce the need for traditional pre-processors. Relying on native CSS capabilities helps keep your styling approach simpler and more maintainable, avoiding the extra complexity and cognitive overhead that pre-processors can introduce—especially when their benefits are now largely natively available.
+
 ### `Class` utilities vs `Style` Properties
 
 You can style with both class utilities (`class`/`className`) and style props (`style`) and even mix them when a value is only accessible one way (e.g., a precise style declaration). However, for most components it’s more optimal to pick one approach per area to keep authority predictable and the mental model simple.
@@ -57,7 +133,7 @@ The `style` prop will ALWAYS work and is considered the standard, but many cases
 
 If you are unsure and want to reduce cognitive load. By taking a singular approach here is the general rule of thumb;
 
-- Use class utilities if tools like Tailwind or css-variables are your prefered means of stylingg;
+- Use class utilities if tools like Tailwind or css-variables are your prefered means of styling;
 - Use `style` prop when you need exact CSS, nested selectors, or portability without relying on third-parties like TailwindCSS.
   `peer-focus-visible:outline-(--brand)`, `bg-(--background)`.
 - When you need sibling relationships, complex pseudos, or precise CSS, write them in `style` as nested keys: `.peer:checked ~ &`, `&:hover`, `&:focus-visible`. etc...
@@ -151,6 +227,7 @@ The style system provides the `getStyle` method for applying style styles. This 
 </details>
 
 ##### Example Usage
+The example below only uses class utilities
 
 ```typescript
 import { createStyle, type StyleProps } from "@inspatial/kit/style";
@@ -330,7 +407,7 @@ Tip: create a preset when a combo appears in 2+ places; give it a clear, intenti
 
 ```typescript
 // Direct file import (better tree-shaking)
-import { ButtonStyle } from "@in/widget/ornament/button/style.ts";
+import { ButtonStyle } from "@inspatial/kit/widget/ornament/button/style.ts";
 
 // Base preset (good default)
 export const ButtonBaseStyle = ButtonStyle.getStyle({
@@ -467,7 +544,7 @@ Reusable style constants are like labeled toolboxes. Instead of rebuilding the s
 #### Example 1: Share theme variables across widgets
 
 ```ts
-// @in/widget/theme/style.ts
+// @inspatial/kit/widget/theme/style.ts
 import { createStyle } from "@inspatial/kit/style";
 
 export const ThemeRadius = {
@@ -486,9 +563,9 @@ export const ThemeStyle = createStyle({
 ```
 
 ```ts
-// @in/widget/ornament/kit-border/style.ts
+// @inspatial/kit/widget/ornament/kit-border/style.ts
 import { createStyle } from "@inspatial/kit/style";
-import { ThemeRadius } from "@in/widget/theme/style.ts"; // direct file import
+import { ThemeRadius } from "@inspatial/kit/widget/theme/style.ts"; // direct file import
 
 export const KitBorderStyle = createStyle({
   name: "kit-border",
@@ -503,7 +580,7 @@ export const KitBorderStyle = createStyle({
 #### Example 2: Export a preset for common usage
 
 ```ts
-// @in/widget/ornament/button/style.ts
+// @inspatial/kit/widget/ornament/button/style.ts
 import { createStyle } from "@inspatial/kit/style";
 
 export const ButtonStyle = createStyle({
@@ -520,7 +597,10 @@ export const ButtonOutlineSmStyle = ButtonStyle.getStyle({
 ```tsx
 // usage
 import { iss } from "@inspatial/kit/style";
-import { Button, ButtonOutlineSmStyle } from "@in/widget/ornament/button";
+import {
+  Button,
+  ButtonOutlineSmStyle,
+} from "@inspatial/kit/widget/ornament/button";
 
 <Button className={iss(ButtonOutlineSmStyle)}>Outline</Button>;
 ```
