@@ -282,6 +282,25 @@ These help InServe find important files automatically, like having a smart assis
 
 **kitRoots**: Framework folders that contain components and utilities. InServe includes these in Tailwind scanning and extension discovery.
 
+#### App-level Trigger Types
+
+You can declare custom extension trigger type files directly in your app's `deno.json`. This is perfect when you build your own extensions or want to include trigger types without modifying upstream modules.
+
+```json
+{
+  "inspatial": {
+    "triggerTypes": [
+      "./src/types/my-custom-triggers.d.ts",
+      "../shared/extensions/trigger-types.d.ts"
+    ]
+  }
+}
+```
+
+> **What it does:** InServe will include these files when generating `src/types/extension-trigger-types.generated.d.ts`, merging them alongside any module-declared trigger types.
+
+> **Note:** Paths are relative to your app root. Files must exist and export `interface ExtensionTriggerTypes { ... }`.
+
 #### JS bundling modes
 
 - **inprocess:** uses Deno’s runtime API `Deno.bundle()` in‑process.
