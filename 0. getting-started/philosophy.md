@@ -521,7 +521,7 @@ Backend and frontend aren't separate concerns In-Spatial they're different views
 
 ### Buzzword Graveyard
 
-Bundlers, compilers, transpilers, typegens, SSR, SSG, PPR, ISR these don't make you smart. They reveal how misguided our collective genius has become.
+Bundlers, compilers, transpilers, typegens, SSR, SSG, PPR, ISR these don't make you smart. They reveal how misguided our collective genius has become. We’ve reached a point where we no longer truly know what to use, when to use it, or why.
 
 "But SEO!" you cry. If search engines matter more than user experience, you've already lost. Ironically, InSpatial Kit is more SEO friendly than most of the tools if not all the framework you are already know.
 
