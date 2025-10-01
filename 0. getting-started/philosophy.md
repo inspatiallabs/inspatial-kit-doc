@@ -21,7 +21,7 @@ InSpatial Kit's core DNA is universal rendering. We asked a simple but revolutio
 
 What if you could write JSX once and deploy everywhere web, mobile, embedded devices (Apple Watch, Google Watch), spatial platforms (Vision Pro, Meta Quest, AndroidXR) without rewriting for react-dom here and react-native there?
 
-### Why We Love JSX (But Not React's Baggage)
+### Why We Love JSX (but React failed to finish the job)
 
 JSX works. Despite opinions, it's why most developers choose React alongside its ecosystem. We wanted to preserve that familiarity while solving React's fundamental limitations:
 
@@ -381,7 +381,14 @@ You can't "render and forget." You can't patch logic post-ship. You can't outsou
 
 While others accepted fragmentation as inevitable, universal thinking asks: **What if development environments were as adaptable as the experiences they create?**
 
-That's not just better game and XR development. That's the future of all spatial computing.
+That's not just better game and XR development. That's the future of all spatial computing
+
+### InSpatial Kit’s stance:
+
+- **Zero Node Modules by default** - no `node_modules` folder swallowing your disk.
+- **Runtime imports only** — use what you need, directly from the source (`jsr:`, `esm.sh`, `deno.land`, `gh:`).
+- **Curated `@in` & `@xr` & `@spatial` Module Scopes** — each purpose-driven, composable, reviewed, and independently useful. 
+- **No NPM lock-in** — portability across Deno, Bun, Cloudflare Workers, Native runtimes, XR.
 
 ## Open Source and Not a Self-Hosting Masochist
 
@@ -455,7 +462,19 @@ We didn't build this to win framework beauty contests or collect GitHub stars. W
 
 ### We're Not Playing That Game
 
-InSpatial Kit isn't "React but faster" or "Vue but smaller." We're not competing in the framework beauty contest because **we're solving a fundamentally different problem**.
+SSR (Server-Side Rendering): meant to improve SEO and first paint, but adds duplication of logic (server + client), tricky state transfer, and complex caching layers.
+
+Hydration: supposed to “seamlessly” make server-rendered HTML interactive, but ends up shipping a heavy client bundle and doing double work (re-rendering what the server already rendered).
+
+Reactivity at compile time: tools like Svelte or Solid push computation earlier, but often introduce lock-in, complex compiler stages, and debugging blind spots (hard to map runtime issues to compiled output).
+
+Compilers: give performance gains, but at the cost of dev ergonomics, slower builds, and opaque magic. Developers end up fighting the compiler more often than expected.
+
+Virtual DOMs: solved manual DOM diffing, but are themselves an abstraction overhead. They burn CPU cycles diffing in memory what the browser was already optimized to do natively.
+
+All of these were meant to bridge gaps in performance or DX, but they introduced layer upon layer of incidental complexity. Instead of making the mental model simpler, they fragmented it further. The irony: developers now spend more time wrestling the “solution layer” than building actual features.
+
+InSpatial Kit isn't "React but faster" or "flutter with JSX". Even though we may have outlined the fundamental flaws with current state of the art... We're not competing in the framework beauty contest because **we're solving a different kind of problem**.
 
 ### The Real Question
 
@@ -469,7 +488,7 @@ While they create new syntaxes to learn, we made existing knowledge portable.
 
 ### The Framework Graveyard
 
-Remember Backbone? JQuery, Ember? Knockout? Angular 1? CoffeeScript? The framework you learn today might be legacy tomorrow. But the problems they're trying to solve universal rendering, seamless development, cross-platform deployment those problems aren't going anywhere.
+Remember Backbone? JQuery, Ember? Knockout? Angular 1? CoffeeScript? - me neither. The framework you learn today might be legacy tomorrow. But the problems they're trying to solve universal rendering, seamless development, cross-platform deployment those problems aren't going anywhere.
 
 ### We're Building Infrastructure, Not Fashion
 
@@ -480,6 +499,10 @@ InSpatial Kit is to frameworks what the internet is to individual websites. It's
 Yes, by definition anything that ships with a renderer and a runtime in the same bundle is technically a framework. `InSpatial Kit` is a framework. But calling `InSpatial` "just another framework" is like calling the iPhone "just another phone" or the internet "just another network."
 
 The web doesn't need another framework. It needs a universal development environment, a stable foundation that works everywhere, with everything, for everyone all at once. That's not a framework. That's an evolution.
+
+## Design That Resonates
+
+Design is at the heart of everything we do. Over two years, we've built a complete widgets and components system with intention and care. Our process starts by designing APIs first, then working backwards to implementation. InSpatial Kit is crafted by design, not just engineered.
 
 ## Systems That Feel Like Sorcery
 
@@ -500,11 +523,11 @@ Backend and frontend aren't separate concerns In-Spatial they're different views
 
 Bundlers, compilers, transpilers, typegens, SSR, SSG, PPR, ISR these don't make you smart. They reveal how misguided our collective genius has become.
 
-"But SEO!" you cry. If search engines matter more than user experience, you've already lost.
+"But SEO!" you cry. If search engines matter more than user experience, you've already lost. Ironically, InSpatial Kit is more SEO friendly than most of the tools if not all the framework you are already know.
 
 Designing for build tools leads to APIs that pollute entire systems. A universal system cannot thrive under such principles.
 
-When libraries assume Webpack/Vite/Rollup will always be there, they expose compile-time patterns that create invisible coupling. This "works only after you build it" mentality becomes the shop standard. Suddenly you can't run node myScript.js or ship a CDN link without an entire build orchestra.
+When libraries assume Webpack/Vite/Rollup will always be there, they expose compile-time patterns that create invisible coupling. This "works only after you build it" or bring in `x-party` mentality becomes the shop standard. Suddenly you can't run node myScript.js or ship a CDN link without an entire build orchestra.
 
 ### Testing: The Undeniable Truth
 
@@ -514,4 +537,4 @@ If users can feel the machine, we've failed. Our job isn't to expose complexity,
 
 ### Bottom Line
 
-We spent three years solving these foundational problems and creating **InSpatial** - the worlds first and most comprehensive universal development environemnt (UDE) so you can spend three minutes building anything you can imagine. Not because we love complexity, but because we believe creativity shouldn't be held hostage by toolchain archaeology.
+We spent two years solving these foundational problems and creating **InSpatial** - the worlds first and most comprehensive universal development environemnt (UDE) so you can spend two minutes building anything you can imagine. Not because we love complexity, but because we believe creativity shouldn't be held hostage by toolchain archaeology.

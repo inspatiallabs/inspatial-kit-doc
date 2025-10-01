@@ -400,7 +400,7 @@ Mike uses lots of Tailwind classes and wants to make sure InServe catches them a
     "serve": {
       "build": {
         "css": {
-          "engine": "tailwind",
+          "engine": "tailwindiss",
           "contentGlobs": [
             "src/**/*.{ts,tsx,js,jsx}",
             "../my-component-lib/**/*.{ts,tsx}",
@@ -415,6 +415,8 @@ Mike uses lots of Tailwind classes and wants to make sure InServe catches them a
   }
 }
 ```
+
+> **Note:** Tailwindiss is different from Tailwindcss. ISS works with or alongside the InSpatial Style Sheet Engine. Its the best of both worlds when you want to use ISS which is the recommended style engine with Tailwind. 
 
 #### Example 4: Eli's Production-Ready Development
 
