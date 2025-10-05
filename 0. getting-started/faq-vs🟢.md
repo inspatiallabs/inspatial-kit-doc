@@ -56,7 +56,7 @@ Think of it this way: frameworks are like moving into a fully furnished house wi
 
 **UDE (Universal Development Environment)**
 
-- **Visual-first interface** - starts with drag-and-drop, visual editing
+- **Visual-first interface** - In a UDE anything you can do with code you can do with a visual interface no more no less.
 - **Opinionated and focused** - specifically designed for anything that renders a graphical user interface (apps, websites, games, xr)
 - **Accessible to non-coders** - project managers and designers can use it without coding knowledge
 - **Code mode available** - developers can switch to traditional coding interface when needed
