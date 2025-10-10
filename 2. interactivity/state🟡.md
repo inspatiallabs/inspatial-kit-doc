@@ -1,8 +1,14 @@
 # State
 
+If you're already familiar with [signals](./signal🟢), this section will introduce you to higher-level state abstractions that scale interactive patterns from simple demos up to enterprise-grade production. In Signals you where mostly working with the Scalar pattern for simple and standalone data structures. This section will introduce you to two new patterns Explicit and Separation Patterns and other concepts.
 
+### 🎯 Prerequisites
 
+Before you start:
 
+- Basic understanding of [JavaScript](https://web.dev/learn/javascript)
+- Basic understanding [TypesScript](https://www.typescriptlang.org/docs/handbook/intro.html)
+- Basic understanding of [Signals](./signal🟢)
 
 #### First principles: keep it simple, make it reactive
 
@@ -46,9 +52,9 @@
 - **Bottom line**
   - Reactive-by-default is safe. Work scales with what actually changes, not with app size.
 
-## State (@inspatial/kit/state) - (@in/teract/state)
+## State (@inspatial/kit/state)/(@in/teract/state)
 
-InSpatial State is built-in state management system for InSpatial Kit. InSpatial State provides a higher-level abstraction built on top of InSpatial's reactive signal module `@in/teract/signal`.
+InSpatial State is built-in state management system for InSpatial Kit. InSpatial State provides a higher-level abstraction built on top of InSpatial's reactive signal module `@inspatial/kit/signal`.
 
 You can use InSpatial State in two ways:
 
@@ -126,6 +132,151 @@ createStorage(gameState, {
 - Action Trigger options
   ```ts
   const inc = createAction(s.a, (v) => v + 1, { throttle: 50, once: false });
+  ```
+
+### Type Inference and Typing Guide (Actions, Keys, Storage)
+
+> Goal: get compile-time safety for action keys and storage keys, and great DX for triggers.
+
+#### 1) State shape typing
+
+- Prefer letting TypeScript infer from `initialState`:
+  ```ts
+  const s = createState.in({
+    initialState: { count: 0, name: "ben" },
+  });
+  ```
+- If you provide an explicit interface, make sure `initialState` strictly matches it (no extra fields). Avoid casting that hides mismatches.
+
+#### 2) Strongly-typed action definitions (explicit pattern)
+
+- Use `TriggerDefsFor<T>` to enforce that `key` is `keyof T` and `fn` is typed against the property type:
+
+  ```ts
+  import type { TriggerDefsFor } from "@in/teract/state/action.ts";
+
+  interface Counter {
+    count: number;
+    name: string;
+  }
+
+  const state = createState.in({
+    initialState: <Counter>{ count: 0, name: "" },
+    action: <TriggerDefsFor<Counter>>{
+      increment: { key: "count", fn: (c, n = 1) => c + n },
+      setName: { key: "name", fn: (_c, v: string) => v },
+      // key: "nope" // ❌ TS error: not in Counter
+    },
+  });
+  ```
+
+Result: `state.action.increment` and `state.action.setName` are callable functions with correct parameter types.
+
+#### 3) Strongly-typed triggers (separation pattern)
+
+- When using `createAction(state, defs)`, map defs to callable trigger signatures with `TriggerFunctionsFromDefs`:
+
+  ```ts
+  import { createState } from "@in/teract/state";
+  import { createAction } from "@in/teract/state/action.ts";
+  import type { TriggerFunctionsFromDefs, TriggerDefsFor } from "@in/teract/state/action.ts";
+
+  const s = createState({ count: 0, name: "" });
+
+  const defs: TriggerDefsFor<typeof s.snapshot()> = {
+    inc:    { key: "count", fn: (c, n = 1) => c + n },
+    setName:{ key: "name",  fn: (_c, v: string) => v },
+  };
+
+  const action = createAction(s, defs) as TriggerFunctionsFromDefs<typeof defs>;
+
+  action.inc();      // ok
+  action.setName("");
+  ```
+
+Notes:
+
+- `typeof s.snapshot()` is a convenient way to get the state shape.
+- You can also define a `type`/`interface` and reuse it for both state and defs.
+
+#### 4) Enhanced action targets (no string keys)
+
+For cross-state or nested targets, use enhanced targets instead of `key`:
+
+```ts
+const s = createState({ grid: "None" as "None" | "Line" | "Dot" });
+
+// direct signal
+const setGrid = createAction(s.grid, (_c, v: typeof s.grid.peek()) => v);
+
+// state tuple [state, key]
+const setGrid2 = createAction([s, "grid"], (_c, v) => v);
+
+// batch enhanced defs
+const triggers = createAction(s, {
+  updateGrid: { target: [s, "grid"], fn: (_c, v: typeof s.grid.peek()) => v },
+});
+```
+
+#### 5) Storage typing (`StoragePropsFor<T>`) – key-safe include/exclude
+
+Use `StoragePropsFor<T>` so `include`/`exclude` are checked against your state keys:
+
+```ts
+import type { StoragePropsFor } from "@in/teract/state/storage.ts";
+
+interface AppState {
+  mode: string;
+  window: { view: string };
+  devMode: { value: boolean };
+}
+
+const app = createState.in({
+  initialState: <AppState>{
+    mode: "Spec",
+    window: { view: "Hierarchy" },
+    devMode: { value: false },
+  },
+  storage: <StoragePropsFor<AppState>>{
+    key: "creator-portal",
+    backend: "local",
+    include: ["mode", "window", "devMode"], // ❌ typos are caught
+  },
+});
+```
+
+If you need custom serialization, provide `serialize`/`deserialize` while still enjoying typed `include`/`exclude`.
+
+#### 6) Avoid common pitfalls
+
+- Don’t cast `initialState` to an interface with a different shape (it disables key checking and leads to runtime errors).
+- Don’t annotate actions as the callable signatures in explicit pattern; they are definitions. Use `TriggerDefsFor<T>` for defs; the runtime exposes callable functions under `state.action`.
+- Prefer enhanced targets for non-local keys instead of string keys.
+
+#### 7) Quick recipes
+
+- Explicit pattern with fully typed keys:
+
+  ```ts
+  const ui = createState.in({
+    initialState: { isOpen: false, count: 0 },
+    action: {
+      toggle: { key: "isOpen", fn: (v: boolean) => !v },
+      inc: { key: "count", fn: (c: number, n = 1) => c + n },
+    },
+    storage: { key: "ui", backend: "local", include: ["isOpen", "count"] },
+  });
+  ```
+
+- Separation pattern with cross-state trigger:
+
+  ```ts
+  const a = createState({ value: 0 });
+  const b = createState({ other: 1 });
+
+  // enhance target to update b.other based on a.value
+  const sync = createAction([b, "other"], (_c) => a.value.peek());
+  sync();
   ```
 
 #### Choosing InSpatial State Pattern

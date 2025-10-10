@@ -32,7 +32,7 @@ Before you start:
 > All signal updates are automatically batched for optimal performance. Multiple changes to the same signal or related signals in the same execution cycle will trigger side effects only once with the final values.
 
 > [!NOTE]  
-> Signals are the lowest-level interactive primitives you should only ever use `createSignal()` API from `@in/teract/signal` directly only when building frameworks. Otherwise application development MUST use `createState()` api from `@inspatial/kit/state` which builds upon signals.
+> Signals are the lowest-level interactive primitives. `createState()` subscribes to `createSignal()` and gives you more features.
 
 ### 📚 Terminology
 
@@ -50,10 +50,10 @@ Before you start:
 
 ```typescript
 // ✅ Recommended: Direct import from kit
-import { createSignal, computed, watch } from "@inspatial/kit/signal";
+import { createState, $, watch } from "@inspatial/kit/teract";
 
 // ❌ Avoid: Package-level import
-import { createSignal } from "@inspatial/kit";
+import { createState } from "@inspatial/kit";
 ```
 
 <details>
@@ -98,21 +98,21 @@ vlt install @in/teract
 
 ### Core Functions
 
-#### `createSignal(value, compute?)`
+#### `createState(value, compute?)` - Scalar Pattern
 
 ##### Creates a smart container for reactive values
 
-The `createSignal` function is like creating a special box that not only holds your data but also tells everyone when the data changes. Think of it like a smart mailbox that alerts you whenever new mail arrives.
+The `createState` function is like creating a special box that not only holds your data but also tells everyone when the data changes. Think of it like a smart mailbox that alerts you whenever new mail arrives.
 
 You can create a simple signal with just a value, or create a computed signal that automatically calculates its value based on another signal.
 
 ### Example 1: Creating Ben's Game Score Tracker
 
 ```typescript
-import { createSignal } from "@inspatial/kit/signal";
+import { createState } from "@inspatial/kit/teract";
 
 // Create a signal to track Ben's current score
-const benScore = createSignal(0);
+const benScore = createState(0);
 
 // Check Ben's current score
 console.log(benScore.value); // 0
@@ -129,13 +129,13 @@ console.log(benScore.value); // 120
 ### Example 2: Creating Charlotte's Temperature Monitor
 
 ```typescript
-import { createSignal } from "@inspatial/kit/signal";
+import { createState } from "@inspatial/kit/teract";
 
 // Track the temperature in Charlotte's room
-const roomTemperature = createSignal(22); // 22°C
+const roomTemperature = createState(22); // 22°C
 
 // Create a computed signal that converts to Fahrenheit
-const tempInFahrenheit = createSignal(roomTemperature, (celsius) => {
+const tempInFahrenheit = createState(roomTemperature, (celsius) => {
   return (celsius * 9) / 5 + 32;
 });
 
@@ -146,7 +146,7 @@ roomTemperature.value = 25; // 25°C
 console.log(tempInFahrenheit.value); // 77°F (automatically updated!)
 ```
 
-#### `computed(fn) and/or $()`
+#### `$(fn) and/or computed()`
 
 ##### Creates values that automatically update when their dependencies change
 
@@ -170,15 +170,15 @@ It's basically a smart getter that:
 ### Example 1: Eli's Shopping Cart Total
 
 ```typescript
-import { createSignal, computed } from "@inspatial/kit/signal";
+import { createState, $ } from "@inspatial/kit/teract";
 
 // Eli's shopping cart items
-const itemPrice = createSignal(25.99);
-const quantity = createSignal(2);
-const taxRate = createSignal(0.08); // 8% tax
+const itemPrice = createState(25.99);
+const quantity = createState(2);
+const taxRate = createState(0.08); // 8% tax
 
 // The total automatically calculates when any value changes
-const cartTotal = computed(() => {
+const cartTotal = $(() => {
   const subtotal = itemPrice.value * quantity.value;
   const tax = subtotal * taxRate.value;
   return subtotal + tax;
@@ -194,16 +194,16 @@ console.log(cartTotal.value); // 84.2076 (automatically recalculated!)
 ### Example 2: Mike's User Profile Display
 
 ```typescript
-import { createSignal, computed } from "@inspatial/kit/signal";
+import { createState, $ } from "@inspatial/kit/teract";
 
 // Mike's profile information
-const firstName = createSignal("Mike");
-const lastName = createSignal("Anderson");
-const age = createSignal(28);
+const firstName = createState("Mike");
+const lastName = createState("Anderson");
+const age = createState(28);
 
 // Computed values that update when profile changes
-const fullName = computed(() => `${firstName.value} ${lastName.value}`);
-const displayName = computed(
+const fullName = $(() => `${firstName.value} ${lastName.value}`);
+const displayName = $(
   () => `${fullName.value} (${age.value} years old)`
 );
 
@@ -224,11 +224,11 @@ The `isSignal` function helps you determine if something is a signal or just a r
 ### Example 1: Ben's Data Type Checker
 
 ```typescript
-import { createSignal, isSignal } from "@inspatial/kit/signal";
+import { createState, isSignal } from "@inspatial/kit/teract";
 
-const benAge = createSignal(25);
+const benAge = createState(25);
 const benName = "Ben Parker";
-const benCity = createSignal("New York");
+const benCity = createState("New York");
 
 // Check what's a signal and what isn't
 console.log(isSignal(benAge)); // true (it's a signal)
@@ -246,16 +246,16 @@ The `Signal.ensure` method is like a helpful converter that takes any value and 
 ### Example 1: Charlotte's Mixed Data Handler
 
 ```typescript
-import { createSignal } from "@inspatial/kit/signal";
+import { createState } from "@inspatial/kit/teract";
 
-const charlotteAge = createSignal(22);
+const charlotteAge = createState(22);
 const charlotteName = "Charlotte Davis"; // Just a string
 const charlotteScore = 95; // Just a number
 
 // Ensure everything is a signal for consistent handling
-const ageSignal = createSignal.ensure(charlotteAge); // Returns the same signal
-const nameSignal = createSignal.ensure(charlotteName); // Creates new signal("Charlotte Davis")
-const scoreSignal = createSignal.ensure(charlotteScore); // Creates new signal(95)
+const ageSignal = createState.ensure(charlotteAge); // Returns the same signal
+const nameSignal = createState.ensure(charlotteName); // Creates new signal("Charlotte Davis")
+const scoreSignal = createState.ensure(charlotteScore); // Creates new signal(95)
 
 console.log(ageSignal === charlotteAge); // true (same signal)
 console.log(nameSignal.value); // "Charlotte Davis"
@@ -271,16 +271,16 @@ The `Signal.ensureAll` method is like `Signal.ensure` but for multiple values at
 ### Example 1: Eli's Data Normalization
 
 ```typescript
-import { createSignal } from "@inspatial/kit/signal";
+import { createState } from "@inspatial/kit/teract";
 
 // Eli has mixed data types
-const existingSignal = createSignal("Hello");
+const existingSignal = createState("Hello");
 const regularString = "World";
 const regularNumber = 42;
-const anotherSignal = createSignal(true);
+const anotherSignal = createState(true);
 
 // Convert everything to signals at once
-const allSignals = createSignal.ensureAll(
+const allSignals = createState.ensureAll(
   existingSignal,
   regularString,
   regularNumber,
@@ -305,9 +305,9 @@ The `.get()` method retrieves the current value from a signal and automatically 
 ### Example 1: Ben's Score Tracker with Dependency
 
 ```typescript
-import { createSignal, watch } from "@inspatial/kit/signal";
+import { createState, watch } from "@inspatial/kit/teract";
 
-const benScore = createSignal(100);
+const benScore = createState(100);
 
 // This effect will re-run whenever benScore changes
 watch(() => {
@@ -329,9 +329,9 @@ The `.set()` method updates a signal's value and automatically triggers all conn
 ### Example 1: Charlotte's Temperature Control
 
 ```typescript
-import { createSignal } from "@inspatial/kit/signal";
+import { createState } from "@inspatial/kit/teract";
 
-const roomTemp = createSignal(20);
+const roomTemp = createState(20);
 
 // Update the temperature
 roomTemp.set(25);
@@ -351,10 +351,10 @@ The `.peek()` method lets you read a signal's value without subscribing to chang
 ### Example 1: Eli's Conditional Logic
 
 ```typescript
-import { createSignal, watch } from "@inspatial/kit/signal";
+import { createState, watch } from "@inspatial/kit/teract";
 
-const eliScore = createSignal(85);
-const gameMode = createSignal("easy");
+const eliScore = createState(85);
+const gameMode = createState("easy");
 
 // Effect that only depends on eliScore, not gameMode
 watch(() => {
@@ -379,9 +379,9 @@ The `.poke()` method quietly updates a signal's value without notifying anyone. 
 ### Example 1: Mike's Silent Update
 
 ```typescript
-import { createSignal, watch } from "@inspatial/kit/signal";
+import { createState, watch } from "@inspatial/kit/teract";
 
-const mikeHealth = createSignal(100);
+const mikeHealth = createState(100);
 
 // Watch for health changes
 watch(() => {
@@ -409,9 +409,9 @@ The `.trigger()` method manually forces all side effects connected to this signa
 ### Example 1: Charlotte's Manual Refresh
 
 ```typescript
-import { createSignal, watch } from "@inspatial/kit/signal";
+import { createState, watch } from "@inspatial/kit/teract";
 
-const charlotteStatus = createSignal("online");
+const charlotteStatus = createState("online");
 
 watch(() => {
   console.log(`Charlotte is ${charlotteStatus.value}`);
@@ -433,13 +433,13 @@ The `.refresh()` method forces a computed signal to recalculate its value, which
 ### Example 1: Ben's External Data Integration
 
 ```typescript
-import { createSignal } from "@inspatial/kit/signal";
+import { createState } from "@inspatial/kit/teract";
 
-const benScore = createSignal(100);
+const benScore = createState(100);
 let bonusMultiplier = 1.5; // External variable, not a signal
 
 // Computed signal that uses external variable
-const finalScore = createSignal(benScore, (score) => {
+const finalScore = createState(benScore, (score) => {
   return Math.floor(score * bonusMultiplier);
 });
 
@@ -464,9 +464,9 @@ The `.connect()` method lets you manually attach an effect function to a signal.
 ### Example 1: Eli's Custom Effect Connection
 
 ```typescript
-import { createSignal } from "@inspatial/kit/signal";
+import { createState } from "@inspatial/kit/teract";
 
-const eliLevel = createSignal(1);
+const eliLevel = createState(1);
 
 // Manually connect an effect
 eliLevel.connect(() => {
@@ -495,10 +495,10 @@ The `.touch()` method subscribes the current effect to this signal without actua
 ### Example 1: Mike's Change Detection
 
 ```typescript
-import { createSignal, watch } from "@inspatial/kit/signal";
+import { createState, watch } from "@inspatial/kit/teract";
 
-const mikeStatus = createSignal("idle");
-const lastUpdate = createSignal(Date.now());
+const mikeStatus = createState("idle");
+const lastUpdate = createState(Date.now());
 
 // Effect that runs when mikeStatus changes, but doesn't need its value
 watch(() => {
@@ -518,9 +518,9 @@ The `.subscribe()` method creates a subscription that calls your listener functi
 ### Example 1: Charlotte's News Subscription
 
 ```typescript
-import { createSignal } from "@inspatial/kit/signal";
+import { createState } from "@inspatial/kit/teract";
 
-const charlotteScore = createSignal(0);
+const charlotteScore = createState(0);
 
 // Subscribe to score changes
 const unsubscribe = charlotteScore.subscribe((newScore) => {
@@ -544,9 +544,9 @@ The `.on()` method provides enhanced subscriptions that give you both old and ne
 ### Example 1: Ben's Detailed Change Tracking
 
 ```typescript
-import { createSignal } from "@inspatial/kit/signal";
+import { createState } from "@inspatial/kit/teract";
 
-const benHealth = createSignal(100);
+const benHealth = createState(100);
 
 // Subscribe to detailed changes
 const unsubscribe = benHealth.on("change", (newHealth, oldHealth, context) => {
@@ -580,9 +580,9 @@ The `.value` property provides convenient getter/setter access to a signal's val
 ### Example 1: Eli's Simple Value Access
 
 ```typescript
-import { createSignal } from "@inspatial/kit/signal";
+import { createState } from "@inspatial/kit/teract";
 
-const eliPoints = createSignal(0);
+const eliPoints = createState(0);
 
 // Get the current value
 console.log(eliPoints.value); // 0
@@ -605,9 +605,9 @@ The `.connected` property tells you whether any side effects or subscriptions ar
 ### Example 1: Mike's Connection Status
 
 ```typescript
-import { createSignal, watch } from "@inspatial/kit/signal";
+import { createState, watch } from "@inspatial/kit/teract";
 
-const mikeStatus = createSignal("idle");
+const mikeStatus = createState("idle");
 
 console.log(mikeStatus.connected); // false (no listeners yet)
 
@@ -632,12 +632,12 @@ The `.hasValue()` method checks if a signal has a non-nullish value (not `undefi
 ### Example 1: Charlotte's Value Validation
 
 ```typescript
-import { createSignal } from "@inspatial/kit/signal";
+import { createState } from "@inspatial/kit/teract";
 
-const charlotteName = createSignal("Charlotte");
-const charlotteAge = createSignal(null);
-const charlotteCity = createSignal(undefined);
-const charlotteScore = createSignal(0);
+const charlotteName = createState("Charlotte");
+const charlotteAge = createState(null);
+const charlotteCity = createState(undefined);
+const charlotteScore = createState(0);
 
 console.log(charlotteName.hasValue()); // true (has a string)
 console.log(charlotteAge.hasValue()); // false (null)
@@ -654,9 +654,9 @@ The `.nullishThen()` method creates a new signal that provides a fallback value 
 ### Example 1: Ben's Username with Default
 
 ```typescript
-import { createSignal } from "@inspatial/kit/signal";
+import { createState } from "@inspatial/kit/teract";
 
-const benUsername = createSignal(null);
+const benUsername = createState(null);
 const displayName = benUsername.nullishThen("Anonymous User");
 
 console.log(displayName.value); // "Anonymous User"
@@ -685,9 +685,9 @@ The `.inverse()` method creates a new signal that contains the logical opposite 
 ### Example 1: Eli's Feature Toggle
 
 ```typescript
-import { createSignal } from "@inspatial/kit/signal";
+import { createState } from "@inspatial/kit/teract";
 
-const eliDarkMode = createSignal(false);
+const eliDarkMode = createState(false);
 const eliLightMode = eliDarkMode.inverse();
 
 console.log(eliDarkMode.value); // false
@@ -707,11 +707,11 @@ The `.and()` and `.or()` methods create signals that perform logical operations 
 ### Example 1: Mike's Permission System
 
 ```typescript
-import { createSignal } from "@inspatial/kit/signal";
+import { createState } from "@inspatial/kit/teract";
 
-const mikeIsLoggedIn = createSignal(true);
-const mikeIsAdmin = createSignal(false);
-const mikeIsPremium = createSignal(true);
+const mikeIsLoggedIn = createState(true);
+const mikeIsAdmin = createState(false);
+const mikeIsPremium = createState(true);
 
 // Mike can edit if he's logged in AND is an admin
 const canEdit = mikeIsLoggedIn.and(mikeIsAdmin);
@@ -735,11 +735,11 @@ These methods perform logical operations where the second value is negated. Thin
 ### Example 1: Charlotte's Game State Logic
 
 ```typescript
-import { createSignal } from "@inspatial/kit/signal";
+import { createState } from "@inspatial/kit/teract";
 
-const charlotteIsAlive = createSignal(true);
-const charlotteIsInvulnerable = createSignal(false);
-const charlotteIsMoving = createSignal(true);
+const charlotteIsAlive = createState(true);
+const charlotteIsInvulnerable = createState(false);
+const charlotteIsMoving = createState(true);
 
 // Charlotte can take damage if alive AND NOT invulnerable
 const canTakeDamage = charlotteIsAlive.andNot(charlotteIsInvulnerable);
@@ -764,10 +764,10 @@ The `.eq()` and `.neq()` methods create signals that compare values for equality
 ### Example 1: Ben's Score Tracking
 
 ```typescript
-import { createSignal } from "@inspatial/kit/signal";
+import { createState } from "@inspatial/kit/teract";
 
-const benScore = createSignal(100);
-const targetScore = createSignal(150);
+const benScore = createState(100);
+const targetScore = createState(150);
 
 const hasReachedTarget = benScore.eq(targetScore);
 const needsMorePoints = benScore.neq(targetScore);
@@ -789,9 +789,9 @@ These methods create signals that perform numeric comparisons. Think of them lik
 ### Example 1: Eli's Health Monitor
 
 ```typescript
-import { createSignal } from "@inspatial/kit/signal";
+import { createState } from "@inspatial/kit/teract";
 
-const eliHealth = createSignal(75);
+const eliHealth = createState(75);
 
 const isHealthy = eliHealth.gt(50); // > 50
 const isCritical = eliHealth.lt(25); // < 25
@@ -820,10 +820,10 @@ These methods create signals that check the truthiness of values. Think of them 
 ### Example 1: Mike's Input Validation
 
 ```typescript
-import { createSignal } from "@inspatial/kit/signal";
+import { createState } from "@inspatial/kit/teract";
 
-const mikeInput = createSignal("");
-const mikeScore = createSignal(0);
+const mikeInput = createState("");
+const mikeScore = createState(0);
 
 const hasInput = mikeInput.isTruthy();
 const isEmpty = mikeInput.isFalsy();
@@ -849,9 +849,9 @@ These methods create signals that check for specific types or null/undefined val
 ### Example 1: Charlotte's Data Validation
 
 ```typescript
-import { createSignal } from "@inspatial/kit/signal";
+import { createState } from "@inspatial/kit/teract";
 
-const charlotteData = createSignal(null);
+const charlotteData = createState(null);
 
 const isNull = charlotteData.isNull();
 const isUndefined = charlotteData.isUndefined();
@@ -880,9 +880,9 @@ These methods create signals that check if a value falls within or outside a ran
 ### Example 1: Ben's Temperature Monitor
 
 ```typescript
-import { createSignal } from "@inspatial/kit/signal";
+import { createState } from "@inspatial/kit/teract";
 
-const benRoomTemp = createSignal(22);
+const benRoomTemp = createState(22);
 
 const isComfortable = benRoomTemp.between(18, 25); // 18 <= temp <= 25
 const needsAdjustment = benRoomTemp.outside(18, 25); // temp < 18 || temp > 25
@@ -904,10 +904,10 @@ These methods work with signals containing arrays or strings, providing reactive
 ### Example 1: Eli's Shopping List Manager
 
 ```typescript
-import { createSignal } from "@inspatial/kit/signal";
+import { createState } from "@inspatial/kit/teract";
 
-const eliShoppingList = createSignal(["bread", "milk"]);
-const eliSearchTerm = createSignal("bread");
+const eliShoppingList = createState(["bread", "milk"]);
+const eliSearchTerm = createState("bread");
 
 const listIsEmpty = eliShoppingList.isEmpty();
 const hasItems = eliShoppingList.isNotEmpty();
@@ -935,9 +935,9 @@ The `read` function is a universal value reader that works with both signals and
 ### Example 1: Mike's Mixed Data Reader
 
 ```typescript
-import { createSignal, read } from "@inspatial/kit/signal";
+import { createState, read } from "@inspatial/kit/teract";
 
-const mikeSignalScore = createSignal(100);
+const mikeSignalScore = createState(100);
 const mikeRegularScore = 85;
 
 // read() works with both signals and regular values
@@ -957,10 +957,10 @@ The `peek` function reads a signal's value without subscribing to changes. Think
 ### Example 1: Charlotte's Non-Reactive Check
 
 ```typescript
-import { createSignal, peek, watch } from "@inspatial/kit/signal";
+import { createState, peek, watch } from "@inspatial/kit/teract";
 
-const charlotteHealth = createSignal(100);
-const charlotteMana = createSignal(50);
+const charlotteHealth = createState(100);
+const charlotteMana = createState(50);
 
 // Effect that only depends on health, not mana
 watch(() => {
@@ -983,9 +983,9 @@ The `write` function updates a signal's value and supports both direct values an
 ### Example 1: Ben's Score Updater
 
 ```typescript
-import { createSignal, write } from "@inspatial/kit/signal";
+import { createState, write } from "@inspatial/kit/teract";
 
-const benScore = createSignal(100);
+const benScore = createState(100);
 
 // Direct value update
 write(benScore, 150);
@@ -1010,12 +1010,12 @@ The `readAll` function reads multiple signals or values simultaneously and retur
 ### Example 1: Eli's Dashboard Data
 
 ```typescript
-import { createSignal, readAll } from "@inspatial/kit/signal";
+import { createState, readAll } from "@inspatial/kit/teract";
 
-const eliScore = createSignal(100);
-const eliLevel = createSignal(5);
+const eliScore = createState(100);
+const eliLevel = createState(5);
 const eliName = "Eli Thompson"; // Regular string
-const eliHealth = createSignal(85);
+const eliHealth = createState(85);
 
 // Read all values at once
 const [score, level, name, health] = readAll(
@@ -1040,9 +1040,9 @@ The `poke` function updates a signal's value quietly, without notifying any conn
 ### Example 1: Mike's Background Update
 
 ```typescript
-import { createSignal, poke, watch } from "@inspatial/kit/signal";
+import { createState, poke, watch } from "@inspatial/kit/teract";
 
-const mikeStatus = createSignal("online");
+const mikeStatus = createState("online");
 
 // Watch for status changes
 watch(() => {
@@ -1069,10 +1069,10 @@ The `touch` function subscribes to signals without reading their values. Think o
 ### Example 1: Charlotte's Change Detector
 
 ```typescript
-import { createSignal, touch, watch } from "@inspatial/kit/signal";
+import { createState, touch, watch } from "@inspatial/kit/teract";
 
-const charlotteX = createSignal(10);
-const charlotteY = createSignal(20);
+const charlotteX = createState(10);
+const charlotteY = createState(20);
 
 // Effect that runs when position changes, but doesn't need the values
 watch(() => {
@@ -1095,10 +1095,10 @@ The `watch` function creates an effect that automatically runs whenever its sign
 ### Example 1: Ben's Health Monitor
 
 ```typescript
-import { createSignal, watch } from "@inspatial/kit/signal";
+import { createState, watch } from "@inspatial/kit/teract";
 
-const benHealth = createSignal(100);
-const benMana = createSignal(50);
+const benHealth = createState(100);
+const benMana = createState(50);
 
 // Create an effect that watches both health and mana
 const dispose = watch(() => {
@@ -1131,11 +1131,11 @@ The `connect` function manually connects multiple signals to an effect function.
 ### Example 1: Charlotte's Multi-Signal Monitor
 
 ```typescript
-import { createSignal, connect } from "@inspatial/kit/signal";
+import { createState, connect } from "@inspatial/kit/teract";
 
-const charlotteX = createSignal(0);
-const charlotteY = createSignal(0);
-const charlotteZ = createSignal(0);
+const charlotteX = createState(0);
+const charlotteY = createState(0);
+const charlotteZ = createState(0);
 
 // Connect all position signals to one effect
 connect([charlotteX, charlotteY, charlotteZ], () => {
@@ -1160,9 +1160,9 @@ The `bind` function connects a handler to a value, whether it's a signal, functi
 ### Example 1: Eli's Flexible Data Binding
 
 ```typescript
-import { createSignal, bind } from "@inspatial/kit/signal";
+import { createState, bind } from "@inspatial/kit/teract";
 
-const eliScore = createSignal(100);
+const eliScore = createState(100);
 
 // Bind a logger to the signal
 bind((score) => console.log(`Eli's score: ${score}`), eliScore);
@@ -1190,11 +1190,11 @@ The `listen` function sets up a callback that triggers when any of the provided 
 ### Example 1: Mike's System Monitor
 
 ```typescript
-import { createSignal, listen } from "@inspatial/kit/signal";
+import { createState, listen } from "@inspatial/kit/teract";
 
-const mikeCPU = createSignal(25);
-const mikeMemory = createSignal(60);
-const mikeDisk = createSignal(80);
+const mikeCPU = createState(25);
+const mikeMemory = createState(60);
+const mikeDisk = createState(80);
 
 // Listen to all system metrics
 listen([mikeCPU, mikeMemory, mikeDisk], () => {
@@ -1219,11 +1219,11 @@ The `merge` function creates a computed signal that combines the values of multi
 ### Example 1: Ben's Profile Merger
 
 ```typescript
-import { createSignal, merge } from "@inspatial/kit/signal";
+import { createState, merge } from "@inspatial/kit/teract";
 
-const benFirstName = createSignal("Ben");
-const benLastName = createSignal("Parker");
-const benAge = createSignal(25);
+const benFirstName = createState("Ben");
+const benLastName = createState("Parker");
+const benAge = createState(25);
 
 // Merge multiple signals into a profile display
 const benProfile = merge(
@@ -1246,11 +1246,11 @@ The `tpl` function creates a computed signal that builds template strings from s
 ### Example 1: Charlotte's Dynamic Message
 
 ```typescript
-import { createSignal, tpl } from "@inspatial/kit/signal";
+import { createState, tpl } from "@inspatial/kit/teract";
 
-const charlotteName = createSignal("Charlotte");
-const charlotteScore = createSignal(150);
-const charlotteLevel = createSignal(5);
+const charlotteName = createState("Charlotte");
+const charlotteScore = createState(150);
+const charlotteLevel = createState(5);
 
 // Create a reactive template string
 const charlotteMessage = tpl`Hello ${charlotteName}! You have ${charlotteScore} points at level ${charlotteLevel}.`;
@@ -1272,9 +1272,9 @@ The `not` function creates a computed signal that negates the input value. Think
 ### Example 1: Eli's Boolean Logic
 
 ```typescript
-import { createSignal, not } from "@inspatial/kit/signal";
+import { createState, not } from "@inspatial/kit/teract";
 
-const eliIsOnline = createSignal(true);
+const eliIsOnline = createState(true);
 const eliIsOffline = not(eliIsOnline);
 
 console.log(eliIsOffline.value); // false (not true)
@@ -1296,9 +1296,9 @@ The `derive` function creates a signal that automatically tracks a specific prop
 ### Example 1: Mike's User Profile Property
 
 ```typescript
-import { createSignal, derive } from "@inspatial/kit/signal";
+import { createState, derive } from "@inspatial/kit/teract";
 
-const mikeUser = createSignal({
+const mikeUser = createState({
   name: "Mike Anderson",
   email: "mike@inspatial.io",
   score: 100,
@@ -1329,9 +1329,9 @@ The `extract` function creates multiple signals from an object signal's properti
 ### Example 1: Charlotte's Player Stats
 
 ```typescript
-import { createSignal, extract } from "@inspatial/kit/signal";
+import { createState, extract } from "@inspatial/kit/teract";
 
-const charlottePlayer = createSignal({
+const charlottePlayer = createState({
   name: "Charlotte",
   health: 100,
   mana: 50,
@@ -1370,11 +1370,11 @@ The `derivedExtract` function is similar to `extract` but creates derived signal
 ### Example 1: Ben's Nested Data Structure
 
 ```typescript
-import { createSignal, derivedExtract } from "@inspatial/kit/signal";
+import { createState, derivedExtract } from "@inspatial/kit/teract";
 
-const benData = createSignal({
-  profile: createSignal({ name: "Ben", age: 25 }),
-  stats: createSignal({ score: 1000, level: 10 }),
+const benData = createState({
+  profile: createState({ name: "Ben", age: 25 }),
+  stats: createState({ score: 1000, level: 10 }),
   settings: { theme: "dark", notifications: true },
 });
 
@@ -1394,13 +1394,13 @@ The `makeReactive` function creates a proxy object where signal properties can b
 ### Example 1: Eli's Reactive Game State
 
 ```typescript
-import { createSignal, makeReactive } from "@inspatial/kit/signal";
+import { createState, makeReactive } from "@inspatial/kit/teract";
 
 const eliGameState = makeReactive({
-  score: createSignal(0),
-  level: createSignal(1),
+  score: createState(0),
+  level: createState(1),
   playerName: "Eli", // Regular property
-  isPlaying: createSignal(false),
+  isPlaying: createState(false),
 });
 
 // Access signals as if they were regular properties
@@ -1426,9 +1426,9 @@ The `onCondition` function creates a pattern matcher that can efficiently test s
 ### Example 1: Mike's Game State Matcher
 
 ```typescript
-import { createSignal, onCondition } from "@inspatial/kit/signal";
+import { createState, onCondition } from "@inspatial/kit/teract";
 
-const mikeGameState = createSignal("menu");
+const mikeGameState = createState("menu");
 const stateMatch = onCondition(mikeGameState);
 
 // Create condition signals
@@ -1458,9 +1458,9 @@ The `onDispose` function registers a cleanup callback that will be called when t
 ### Example 1: Charlotte's Resource Cleanup
 
 ```typescript
-import { createSignal, watch, onDispose } from "@inspatial/kit/signal";
+import { createState, watch, onDispose } from "@inspatial/kit/teract";
 
-const charlotteIsActive = createSignal(true);
+const charlotteIsActive = createState(true);
 
 const dispose = watch(() => {
   if (charlotteIsActive.value) {
@@ -1489,9 +1489,9 @@ The `createSideEffect` function creates a side effect that runs automatically an
 ### Example 1: Ben's Auto-Cleanup Timer
 
 ```typescript
-import { createSignal, createSideEffect } from "@inspatial/kit/signal";
+import { createState, createSideEffect } from "@inspatial/kit/teract";
 
-const benInterval = createSignal(1000);
+const benInterval = createState(1000);
 
 // Create a side effect with automatic cleanup
 const cancelSideEffect = createSideEffect(() => {
@@ -1528,10 +1528,10 @@ The `untrack` function runs a function without tracking any signal dependencies.
 ### Example 1: Eli's Non-Reactive Calculation
 
 ```typescript
-import { createSignal, watch, untrack } from "@inspatial/kit/signal";
+import { createState, watch, untrack } from "@inspatial/kit/teract";
 
-const eliScore = createSignal(100);
-const eliBonus = createSignal(50);
+const eliScore = createState(100);
+const eliBonus = createState(50);
 
 // Effect that only depends on score, not bonus
 watch(() => {
@@ -1556,9 +1556,9 @@ The `freeze` function captures the current effect context and returns a function
 ### Example 1: Mike's Frozen Context
 
 ```typescript
-import { createSignal, watch, freeze } from "@inspatial/kit/signal";
+import { createState, watch, freeze } from "@inspatial/kit/teract";
 
-const mikeData = createSignal("initial");
+const mikeData = createState("initial");
 
 watch(() => {
   // Freeze a function with the current context
@@ -1584,9 +1584,9 @@ The `tick` function manually triggers the signal scheduler to process all pendin
 ### Example 1: Charlotte's Manual Update Trigger
 
 ```typescript
-import { createSignal, tick } from "@inspatial/kit/signal";
+import { createState, tick } from "@inspatial/kit/teract";
 
-const charlotteScore = createSignal(0);
+const charlotteScore = createState(0);
 
 // Manually trigger updates
 charlotteScore.value = 100;
@@ -1604,10 +1604,10 @@ The `nextTick` function waits for all pending signal updates and side effects to
 ### Example 1: Ben's Update Synchronization
 
 ```typescript
-import { createSignal, computed, nextTick } from "@inspatial/kit/signal";
+import { createState, $, nextTick } from "@inspatial/kit/teract";
 
-const benScore = createSignal(0);
-const benDoubled = computed(() => benScore.value * 2);
+const benScore = createState(0);
+const benDoubled = $(() => benScore.value * 2);
 
 benScore.value = 50;
 
@@ -1647,9 +1647,9 @@ When a signal is used with `JSON.stringify`, it automatically returns its value 
 ### Example 1: Charlotte's Data Export
 
 ```typescript
-import { createSignal } from "@inspatial/kit/signal";
+import { createState } from "@inspatial/kit/teract";
 
-const charlotteProfile = createSignal({
+const charlotteProfile = createState({
   name: "Charlotte",
   score: 1500,
   level: 12,
@@ -1675,10 +1675,10 @@ Signals can be automatically coerced to primitives in mathematical and string op
 ### Example 1: Ben's Math Operations
 
 ```typescript
-import { createSignal } from "@inspatial/kit/signal";
+import { createState } from "@inspatial/kit/teract";
 
-const benScore = createSignal(100);
-const benMultiplier = createSignal(2.5);
+const benScore = createState(100);
+const benMultiplier = createState(2.5);
 
 // Automatic coercion in math operations
 console.log(benScore + 50); // 150 (number coercion)
@@ -1702,9 +1702,9 @@ If a signal contains an iterable (like an array), it can be used directly in `fo
 ### Example 1: Eli's Item Collection
 
 ```typescript
-import { createSignal } from "@inspatial/kit/signal";
+import { createState } from "@inspatial/kit/teract";
 
-const eliInventory = createSignal(["sword", "shield", "potion"]);
+const eliInventory = createState(["sword", "shield", "potion"]);
 
 // Direct iteration over signal contents
 for (const item of eliInventory) {
@@ -1725,7 +1725,7 @@ const withNewItem = [...eliInventory, "bow"]; // ["sword", "shield", "potion", "
 
    ```typescript
    // ✅ Good: Automatic updates
-   const fullName = computed(() => `${firstName.value} ${lastName.value}`);
+   const fullName = $(() => `${firstName.value} ${lastName.value}`);
 
    // ❌ Avoid: Manual synchronization
    let fullName = "";
@@ -1778,19 +1778,19 @@ const withNewItem = [...eliInventory, "bow"]; // ["sword", "shield", "potion", "
 ### Example 1: Ben's Game Score System
 
 ```typescript
-import { createSignal, computed, watch } from "@inspatial/kit/signal";
+import { createState, $, watch } from "@inspatial/kit/teract";
 
 // Ben's game state
-const benScore = createSignal(0);
-const benLevel = createSignal(1);
-const benExperience = createSignal(0);
+const benScore = createState(0);
+const benLevel = createState(1);
+const benExperience = createState(0);
 
 // Computed values that update automatically
-const experienceNeeded = computed(() => benLevel.value * 100);
-const canLevelUp = computed(
+const experienceNeeded = $(() => benLevel.value * 100);
+const canLevelUp = $(
   () => benExperience.value >= experienceNeeded.value
 );
-const scoreDisplay = computed(
+const scoreDisplay = $(
   () => `Score: ${benScore.value} (Level ${benLevel.value})`
 );
 
@@ -1811,23 +1811,23 @@ console.log(canLevelUp.value); // true (120 >= 100)
 ### Example 2: Charlotte's Shopping Cart
 
 ```typescript
-import { createSignal, computed, watch } from "@inspatial/kit/signal";
+import { createState, $, watch } from "@inspatial/kit/teract";
 
 // Charlotte's shopping cart
-const charlotteCart = createSignal([
+const charlotteCart = createState([
   { id: 1, name: "Laptop", price: 999, quantity: 1 },
   { id: 2, name: "Mouse", price: 25, quantity: 2 },
 ]);
 
-const charlotteTaxRate = createSignal(0.08); // 8% tax
+const charlotteTaxRate = createState(0.08); // 8% tax
 
 // Computed cart totals
-const subtotal = computed(() =>
+const subtotal = $(() =>
   charlotteCart.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
 );
 
-const tax = computed(() => subtotal.value * charlotteTaxRate.value);
-const total = computed(() => subtotal.value + tax.value);
+const tax = $(() => subtotal.value * charlotteTaxRate.value);
+const total = $(() => subtotal.value + tax.value);
 
 // Watch for cart changes
 watch(() => {
@@ -1856,14 +1856,14 @@ updateQuantity(2, 3); // Change mouse quantity to 3
 Signals provide full TypeScript support with automatic type inference and generic constraints:
 
 ```typescript
-import { createSignal, computed, Signal } from "@inspatial/kit/signal";
+import { createState, $, Signal } from "@inspatial/kit/teract";
 
 // Explicit typing
-const eliScore: Signal<number> = createSignal(0);
+const eliScore: Signal<number> = createState(0);
 
 // Automatic type inference
-const mikeName = createSignal("Mike"); // Signal<string>
-const charlotteActive = createSignal(true); // Signal<boolean>
+const mikeName = createState("Mike"); // Signal<string>
+const charlotteActive = createState(true); // Signal<boolean>
 
 // Complex types
 interface Player {
@@ -1872,14 +1872,14 @@ interface Player {
   inventory: string[];
 }
 
-const benPlayer = createSignal<Player>({
+const benPlayer = createState<Player>({
   name: "Ben",
   level: 5,
   inventory: ["sword", "potion"],
 });
 
 // Computed with inferred types
-const playerSummary = computed(
+const playerSummary = $(
   () => `${benPlayer.value.name} (Level ${benPlayer.value.level})`
 ); // Signal<string>
 ```
