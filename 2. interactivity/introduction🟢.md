@@ -220,8 +220,8 @@ createTrigger(
 
 ## What's Next?
 
-Now that you know the basics, you might want to explore:
+Now that you know the basics, you might want to explore in depth:
 
-- [Signal](./signal🟢.md) - Low-level reactive primitives for framework authors
+- [Signal](./signal🟢.md) - Low-level reactive primitives
 - [State](./state🟡.md) - Deep dive into state patterns and APIs
 - [Trigger](./trigger🟡.md) - Universal event system and custom triggers
