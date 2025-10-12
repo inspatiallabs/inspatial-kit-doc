@@ -5,14 +5,15 @@ InSpatial Style Sheet (ISS) is a universal styling system designed for cross-pla
 ISS enables object style injection by compiling your style definitions into unique CSS classes (e.g., .in-abc123), which are injected once into a `<style data-in-variant>` tag. With the `createStyle()` API, you write styles in TypeScript using familiar CSS or Tailwind-like syntax—no separate `.css` files needed. These utilities are used by InSpatial Kit Widgets & Components, but unlike traditional CSS or Tailwind, they are transpiled and applied at runtime for your specific platform and render target. If TailwindCSS is present, its utilities are used; otherwise, standard CSS is applied. Regardless of syntax, all styles are managed and platform-optimized by the InSpatial Style Sheet (ISS) system.
 
 ## Style Creation: (Variant Authority)
-The example below demonstrates how you can use both style objects and class utilities together. They may appear duplicated, but there is no conflict. Style props always take precedence over class utilities. This will be explained in more detail in a later chapter. 
+
+The example below demonstrates how you can use both style objects and class utilities together. They may appear duplicated, but there is no conflict. Style props always take precedence over class utilities. This will be explained in more detail in a later chapter.
 
 ```typescript
 import { createStyle } from "@inspatial/kit/style";
 
 export const IconStyle = createStyle({
   base: [
-    "inline-block items-center", 
+    "inline-block items-center",
     { web: { display: "inline-block", alignItems: "center" } },
   ],
   settings: {
@@ -227,6 +228,7 @@ The style system provides the `getStyle` method for applying style styles. This 
 </details>
 
 ##### Example Usage
+
 The example below only uses class utilities
 
 ```typescript
@@ -1270,6 +1272,100 @@ className={{
       testSignals.isHighCount,
   }}
 ```
+
+### Common Gotcha: Reactive Styles Not Updating
+
+#### When localStorage overrides your initial state values
+
+You've set up your reactive style perfectly, wrapped it in `$(() => ...)`, and your signal is changing but the style stays frozen. This happens when your state uses a backend persistence layer i.e localStorage and an old value is stuck in storage, overriding your fresh `initialState`.
+
+Think of it like this: you updated your recipe (initialState), but your kitchen is still using yesterday's ingredients from the fridge (localStorage). Every time you cook (render), the old ingredients win, and your new recipe never gets used.
+
+> **Terminology:** localStorage is browser storage that persists data even after you close the tab. When `createState` has a `storage` config, it saves state values to localStorage and loads them back on refresh which means old values can override your new `initialState`.
+
+#### The Problem
+
+Here's what happens behind the scenes:
+
+```typescript
+// state.ts
+export const useViewport = createState.in({
+  id: "creator-portal-editor-viewport",
+  initialState: {
+    color: "#ff0000", // You changed this to red
+    // ... other settings
+  },
+  storage: {
+    key: "creator-portal-editor-viewport",
+    backend: "local", // ← This saves ALL state to localStorage
+  },
+});
+```
+
+```typescript
+// view.tsx - Your reactive style looks perfect
+<View
+  style={$(() => ({
+    web: {
+      backgroundColor: color, // Signal binding is correct
+    },
+  }))}
+>
+```
+
+But when you log the value:
+
+```typescript
+console.log(color?.peek?.()); // Output: "var(--bg-background)" ❌
+// Expected: "#ff0000" ✅
+```
+
+The old value from your backend storage layer (`"var(--bg-background)"`) is loaded first and overrides your new `initialState` value (`"#ff0000"`). Your reactive style works perfectly it's just reacting to the wrong value.
+
+#### Why This Happens
+
+When `createState` initializes with storage:
+
+1. It sees `initialState: { color: "#ff0000" }`
+2. But storage says: "Hey, I saved `color: "var(--bg-background)"` last time"
+3. Storage wins, so `color` is set to the old value
+4. Your reactive style binds to that old value
+5. Changes to `initialState` in your code are ignored until you clear storage cache
+
+#### The Solution: Exclude from Storage
+
+The cleanest fix is to exclude properties that should always use `initialState` from storage persistence. Think of it like telling localStorage: "Don't remember this one always use the fresh recipe."
+
+```typescript
+// state.ts
+export const useViewport = createState.in({
+  id: "creator-portal-editor-viewport",
+  initialState: {
+    color: "#ffffff", // Always uses this fresh value
+    controlMode: "Select", // This will be persisted
+    grid: "None", // This will be persisted
+    // ... other settings
+  },
+  storage: {
+    key: "creator-portal-editor-viewport",
+    backend: "local",
+    exclude: ["color"], // ✅ Always use initialState for color
+  },
+});
+```
+
+Now `color` always comes from `initialState`, while other settings like `controlMode` and `grid` are still persisted across page refreshes.
+
+#### Common Mistakes to Avoid
+
+- Don't rely on `initialState` changes to "fix" persisted values use `exclude` instead
+- Don't clear localStorage manually as a permanent solution it only works once
+- Don't override values in components when you can fix it in state config
+- Don't exclude properties that users expect to persist (like preferences or settings)
+
+> **Note:** This pattern applies to any state property that should always reflect the latest code, not user data. Examples include default colors, initial layouts, or feature flags that you control (not user preferences).
+
+You can learn more about on [Backend Storage](../../2.%20interactivity/state🟡.md)
 
 ### This Clarifies Reactive Style × Cross-Style × Component Composition
 
