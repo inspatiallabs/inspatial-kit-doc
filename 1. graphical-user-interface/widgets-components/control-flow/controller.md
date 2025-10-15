@@ -347,6 +347,26 @@ const ctl = createController({
   },
 });
 ```
+---
+
+<details>
+  <summary><strong>Genius</strong></summary>
+
+The Controller acts purely as an orchestration layer it doesn't create new UI primitives. Every field you define in the schema is mapped directly to a standard InSpatial widget. Most of these are Input widget variants such as `Switch`, `TextField`, `ColorPicker`, alongside the Ornament `Tab` and the Presentation widget `Dropdown`. The schema itself is simple metadata: it tells the controller which widget to render and exactly how to wire up its reactivity.
+
+**Key architectural insights:**
+
+- **Zero abstraction tax**: The rendered components are the actual widgets from `@in/widget`, not wrapper proxies. This means styling, accessibility, and behavior are identical whether you write `<Switch>` manually or let the controller render it.
+
+- **Path-to-signal mapping**: When you call `ctl.register("theme.mode")`, the controller resolves that path to the correct signal in your state tree (or its own internal state). For embedded mode, it uses `cfg.map` to alias controller paths to target state paths, enabling zero-copy orchestration.
+
+- **Shallow reconstruction for nested writes**: Deep path updates like `ctl.set("viewport.grid.color", "#ff0000")` don't mutate nested objects. Instead, the controller reads the top-level signal's current value, creates a shallow copy with the nested change applied, then writes back to the top-level signal. This preserves reactivity while avoiding unnecessary re-renders.
+
+- **Field component inference**: The `field.component` property maps to a specific widget type. The controller uses this to conditionally render the correct JSX in a single `Choose` block, passing the registered signal's getter/setter as props. This keeps the rendering logic linear and predictable.
+
+If you know how to style a `Switch`, you already know how to style it in a controller. Same components, same APIs, just declaratively assembled as a widget tree.
+
+</details>
 
 ---
 
