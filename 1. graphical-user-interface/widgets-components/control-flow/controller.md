@@ -27,6 +27,10 @@ Before you start:
 
 - Basic understanding of [CSS](https://web.dev/learn/css)
 - Basic understanding of [Widgets/Components](../1.%20graphical-user-interface/widgets-components🟡.md/)
+- [Popover](#) - One of the three presentation widgets that support controllers
+- [Drawer](#) - Another vessel for controllers
+- [Modal](#) - Full-screen controller presentation
+- [Presentation](#) - The Presentation Widget
 - Optional understanding of [Interactivity](../2.%20interactivity/introduction🟡.md)
 
 ## "Manipulator" Mode
@@ -89,7 +93,34 @@ import { Button } from "@inspatial/kit/ornament"
 <Popover id="simple-controller" as={ctl} />;
 ```
 
-Or, nest the Controller component if you want to customize the layout:
+Alternatively, you can call the Controller function directly if you'd like more control over the layout. This approach is helpful when you want to display the controller alongside other components in your presentation widget.
+
+```tsx
+import { Popover } from "@inspatial/kit/presentation";
+import { Controller } from "@inspatial/kit/control-flow";
+import { Button } from "@inspatial/kit/ornament"
+
+// Presentation trigger
+<Button on:presentation={{ id: "function-controller", action: "toggle" }}>
+    Toggle Controller
+</Button>
+
+<Popover id="function-controller">
+    {Controller(ctl, {
+        wrapper: { style: { web: { backgroundColor: "purple" } } }, // using style prop for customization
+        label: { className: "bg-blue-500" }, // using class prop for customization
+        tab: {},
+        color: {},
+        numberfield: {},
+        switch: {},
+        checkbox: {},
+        radio: {},
+        notSupported: {},
+    })}
+</Popover>
+```
+
+You can nest the Controller component directly. (🔴 Unstable)
 
 ```tsx
 import { Popover } from "@inspatial/kit/presentation";
@@ -104,37 +135,6 @@ import { Button } from "@inspatial/kit/ornament"
 // ⚠️ Experimental
 <Popover id="component-as-controller">
   <Controller as={ctl} />
-</Popover>;
-```
-
-Or, call the Controller function directly for full style control:
-
-```tsx
-import { Popover } from "@inspatial/kit/presentation";
-import { Controller } from "@inspatial/kit/control-flow";
-import { Button } from "@inspatial/kit/ornament"
-
-// Presentation trigger
-<Button on:presentation={{ id: "function-controller", action: "toggle" }}>
-    Toggle Controller
-</Button>
-
-// ⚠️ Experimental
-<Popover id="function-controller">
-  {{
-    view: Controller(ctl, {
-      root: { className: "p-[16px] gap-[16px]" },
-      wrapper: { className: "items-center" },
-      label: { className: "text-sm" },
-      tab: {},
-      color: {},
-      numberfield: {},
-      switch: {},
-      checkbox: {},
-      radio: {},
-      notSupported: {},
-    }),
-  }}
 </Popover>;
 ```
 
@@ -347,6 +347,7 @@ const ctl = createController({
   },
 });
 ```
+
 ---
 
 <details>
@@ -433,13 +434,3 @@ If you know how to style a `Switch`, you already know how to style it in a contr
 | `oninput`  | `(evOrVal: Event \| any) => void` | Input event handler                        |
 | `onchange` | `(ev?: Event) => void`            | Change event handler                       |
 | `onblur`   | `(ev?: Event) => void`            | Blur event handler                         |
-
----
-
-## Related
-
-- [createState](./../../../2.%20interactivity/state🟡.md) - InSpatial's state managerment system
-- [Popover](#) - One of the three presentation widgets that support controllers
-- [Drawer](#) - Another vessel for controllers
-- [Modal](#) - Full-screen controller presentation
-- [Presentation](#) - The Presentation Widget
