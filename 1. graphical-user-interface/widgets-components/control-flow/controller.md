@@ -80,62 +80,74 @@ const ctl = createController({
 
 The cleanest way is to let the presentation widget auto-render it:
 
-```tsx
+```jsx
 import { Popover } from "@inspatial/kit/presentation";
 import { Button } from "@inspatial/kit/ornament"
 
-// Presentation trigger
-<Button on:presentation={{ id: "simple-controller", action: "toggle" }}>
-    Toggle Controller
-</Button>
+export function MyController() {
+  return (
+  // Presentation trigger
+  <Button on:presentation={{ id: "simple-controller", action: "toggle" }}>
+      Toggle Controller
+  </Button>
 
-// Pass the controller and it auto-renders
-<Popover id="simple-controller" as={ctl} />;
+  // Pass the controller and it auto-renders
+  <Popover id="simple-controller" as={ctl} />;
+  )
+}
 ```
 
 Alternatively, you can call the Controller function directly if you'd like more control over the layout. This approach is helpful when you want to display the controller alongside other components in your presentation widget.
 
-```tsx
+```jsx
 import { Popover } from "@inspatial/kit/presentation";
 import { Controller } from "@inspatial/kit/control-flow";
 import { Button } from "@inspatial/kit/ornament"
 
-// Presentation trigger
-<Button on:presentation={{ id: "function-controller", action: "toggle" }}>
-    Toggle Controller
-</Button>
+export function MyController() {
+  return (
+ // Presentation trigger
+  <Button on:presentation={{ id: "function-controller", action: "toggle" }}>
+      Toggle Controller
+  </Button>
 
-<Popover id="function-controller">
-    {Controller(ctl, {
-        wrapper: { style: { web: { backgroundColor: "purple" } } }, // using style prop for customization
-        label: { className: "bg-blue-500" }, // using class prop for customization
-        tab: {},
-        color: {},
-        numberfield: {},
-        switch: {},
-        checkbox: {},
-        radio: {},
-        notSupported: {},
-    })}
-</Popover>
+  <Popover id="function-controller">
+      {Controller(ctl, {
+          wrapper: { style: { web: { backgroundColor: "purple" } } }, // using style prop for customization
+          label: { className: "bg-blue-500" }, // using class prop for customization
+          tab: {},
+          color: {},
+          numberfield: {},
+          switch: {},
+          checkbox: {},
+          radio: {},
+          notSupported: {},
+      })}
+  </Popover>
+  )
+}
 ```
 
 You can nest the Controller component directly. (🔴 Unstable)
 
-```tsx
+```jsx
 import { Popover } from "@inspatial/kit/presentation";
 import { Controller } from "@inspatial/kit/control-flow";
 import { Button } from "@inspatial/kit/ornament"
 
-// Presentation trigger
-<Button on:presentation={{ id: "component-as-controller", action: "toggle" }}>
-    Toggle Controller
-</Button>
+export function MyController() {
+  return (
+  // Presentation trigger
+  <Button on:presentation={{ id: "component-as-controller", action: "toggle" }}>
+      Toggle Controller
+  </Button>
 
-// ⚠️ Experimental
-<Popover id="component-as-controller">
-  <Controller as={ctl} />
-</Popover>;
+  // ⚠️ Experimental
+  <Popover id="component-as-controller">
+    <Controller as={ctl} />
+  </Popover>;
+  )
+}
 ```
 
 ### Example: Viewport Settings (Embedded Mode)
@@ -262,8 +274,8 @@ const ctl = createController({
 
 To display a control manipulator, use it within any supported Presentation widget component such as `Popover`, `Drawer`, or `Modal`. All three provide an `as` prop to accept your controller instance.
 
-```tsx
-// view.tsx
+```jsx
+// view.jsx
 import { ctl } from "./controller.ts";
 import { Popover } from "@inspatial/kit/presentation";
 import { Button } from "@inspatial/kit/ornament";
