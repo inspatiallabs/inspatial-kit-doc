@@ -2,9 +2,7 @@
 
 #### Orchestration engine for UI manipulation, forms, and everything in between
 
-Think of a Controller as your app's universal input system. Whether you're building a settings panel like Figma's design controls, or a user registration form that talks to your backend, the Controller handles both with the same elegant API.
-
-You've built your InSpatial app and it has state. Sometimes you want to let users manipulate things in real-time colors, toggles, theme modes. Other times, you need to collect information, validate it, and send it somewhere i.e login forms, profile updates, checkout flows. The Controller is your answer for both scenarios.
+You've built your InSpatial app and it has state. Sometimes you want to let users manipulate things in real-time like colors, toggles, theme modes etc... Other times, you need to collect information, validate it, and send it somewhere i.e login forms, profile updates, checkout flows. The Controller is your answer for such scenarios. Think of a Controller as your app's universal input system.
 
 Here's the insight: settings panels and forms are fundamentally the same thing. Both render input fields, both track what changed, both need to read and write values. The only real difference? Forms add validation rules and a submission step. So instead of maintaining two separate systems, InSpatial gives you one unified Controller with two modes.
 
@@ -35,7 +33,7 @@ Before you start:
 
 ## "Manipulator" Mode
 
-If you've used drag-and-drop tools like Figma or embedded tools like Tweakpane/Leva, the controller's manipulator mode will feel right at home. It's a compact, schema-driven "mini-editor" you can drop anywhere. We built it because InSpatial Apps is a UDE and UDE's have visual editors; the manipulator makes it trivial to wire settings panels that directly orchestrate live state without boilerplate.
+If you've used drag-and-drop tools like Figma or embedded tools like Tweakpane/Leva, the controller's manipulator mode will feel right at home. It's a compact, schema-driven "mini-editor" you can drop anywhere. We built it because InSpatial App is a UDE and UDE's have visual editors; the manipulator makes it trivial to wire settings panels that directly orchestrate live state without boilerplate.
 
 - Own or embed state (zero-copy)
 - Declarative settings schema
@@ -83,6 +81,7 @@ The cleanest way is to let the presentation widget auto-render it:
 ```jsx
 import { Popover } from "@inspatial/kit/presentation";
 import { Button } from "@inspatial/kit/ornament"
+import { ctl } from "./controller.ts"
 
 export function MyController() {
   return (
@@ -103,6 +102,8 @@ Alternatively, you can call the Controller function directly if you'd like more 
 import { Popover } from "@inspatial/kit/presentation";
 import { Controller } from "@inspatial/kit/control-flow";
 import { Button } from "@inspatial/kit/ornament"
+import { ctl } from "./controller.ts"
+
 
 export function MyController() {
   return (
@@ -134,6 +135,8 @@ You can nest the Controller component directly. (🔴 Unstable)
 import { Popover } from "@inspatial/kit/presentation";
 import { Controller } from "@inspatial/kit/control-flow";
 import { Button } from "@inspatial/kit/ornament"
+import { ctl } from "./controller.ts"
+
 
 export function MyController() {
   return (
@@ -309,7 +312,7 @@ When building the InForm extension, we realized forms and editor manipulators sh
 
 When you need to manually wire a field (custom UI), use `ctl.register(path)`:
 
-```ts
+```jsx
 import { InputField } from "@inspatial/kit/input";
 const field = ctl.register("color");
 // Returns: { value, error, touched, isDirty, oninput, onchange, onblur }
