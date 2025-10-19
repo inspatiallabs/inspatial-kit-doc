@@ -12,6 +12,10 @@ In **form mode**, changes are held locally until the user submits. That's when v
 
 The magic? Both modes can work with state you already have (embedded mode) or create their own. In embedded mode, the controller operates on your existing signals, so manipulator changes propagate instantly, while form mode still holds edits locally until submission. For nested values, it's smart enough to update only what changed, keeping everything reactive and fast.
 
+InSpatial Kit exposes controllers for every built-in widget and component, enabling you to build cross-platform, universal creative tools dramatically faster. When paired with InSpatial [Cloud]("https://www.inspatial.cloud") for multi-user collaboration and backend integration, development speed and flexibility are multiplied making real-time, collaborative tool creation up to 100x more efficient.
+
+The Controller engine serves as the core foundation of the InSpatial [App]("https://www.inspatial.app") development engine, powering its UI manipulation and orchestration capabilities.
+
 > **Terminology:**
 >
 > - **Manipulator mode**: Real-time control of UI state. Changes write immediately as users interact (like a theme controller or visual editor).
@@ -457,12 +461,14 @@ InSpatial's controllers are built on reactive signals, which means they automati
 > **Terminology:**
 >
 > - **Reactive `as`**: Passing a computed `$(() => ...)` value so the presentation reads the current controller every render.
+> - **Conditional controller rendering**: Using control flow components like `Show` to display different controllers based on state.
 > - **Post-flush refresh**: Waiting until batched updates finish using `nextTick()`, then reopening so layout and content are re-measured.
-> - **Conditional rendering**: Showing different controllers or presentations based on your app's state.
 
-#### 1. Swapping controllers dynamically with reactive `as`
+### 1. Swapping controllers with reactive `as`
 
 Sometimes you want to show different controllers based on your app's state. For example, a settings panel that switches between "Viewport Settings" and "Simulator Settings" depending on what the user is editing.
+
+This approach is best when you want the entire presentation to switch controllers automatically.
 
 ```jsx
 import { Popover } from "@inspatial/kit/presentation";
@@ -495,7 +501,65 @@ export function DynamicSettingsPanel() {
 
 The `$()` wrapper makes the `as` prop reactive. When `activeMode` changes, the popover automatically switches controllers without you having to close and reopen it manually.
 
-#### 2. Manual refresh when signals change (using `watch` + `nextTick`)
+> **Note:** This approach is clean and declarative, but the entire controller UI switches at once. If you want to keep some UI elements stable while only swapping the controller content, use the conditional rendering approach below.
+
+### 2. Conditional controller rendering with manual layout
+
+For more control over your presentation's layout, you can render controllers conditionally using `Show` or `Choose` control flows. This is perfect when you want to add tabs, headers, or other UI elements alongside your controllers.
+
+Think of it like a settings menu where you click tabs to switch between different control panels, but the menu itself stays visible.
+
+```jsx
+import { Popover } from "@inspatial/kit/presentation";
+import { Controller, Show } from "@inspatial/kit/control-flow";
+import { Tab } from "@inspatial/kit/ornament";
+import { YStack } from "@inspatial/kit/structure";
+import { ViewportController } from "./viewport-controller.ts";
+import { SimulatorController } from "./simulator-controller.ts";
+import { useViewport } from "./state.ts";
+
+export function EditorViewportSettings() {
+  const { settings } = useViewport;
+
+  return (
+    <>
+      <Button on:presentation={{ id: "settings", action: "toggle" }}>
+        Settings
+      </Button>
+
+      <Popover id="settings">
+        <YStack>
+          {/* Tab switcher stays visible */}
+          <Tab
+            radius="md"
+            defaultSelected={settings?.peek() || "Viewport"}
+            on:input={(label) => settings?.set(label)}
+            children={[{ label: "Viewport" }, { label: "Simulator" }]}
+          />
+
+          {/* Controllers swap based on tab selection */}
+          <Show when={settings?.eq("Viewport")}>
+            <Controller as={ViewportController} />
+            {/**You can also use function al controller here */}
+          </Show>
+          <Show when={settings?.eq("Simulator")}>
+            <Controller as={SimulatorController} />
+            {/**You can also use function al controller here */}
+          </Show>
+        </YStack>
+      </Popover>
+    </>
+  );
+}
+```
+
+In this example, the `Tab` component stays mounted and visible while the `Controller` underneath swaps between `ViewportController` and `SimulatorController` based on the `settings` signal.
+
+> **Note:** When using this approach, you're responsible for the layout structure. Use Structures like `Stack`, `Slot`, etc... to organize your tabs, controllers, and any other UI elements you want in the presentation.
+
+> **Note:** Each `Show` block creates a separate reactive scope. When the condition changes, the old controller unmounts and the new one mounts. This is different from reactive `as`, which keeps the presentation mounted and just swaps the controller content.
+
+### 3. Lifecycle Update: Manual refresh when signals change (using `watch` + `nextTick`)
 
 In some cases, when the user wants to change a mostly static presentation view, you may need to force a refresh. This is helpful when the `as` prop does not change, but you want the presentation to react to internal state updates or remeasure its layout, size, or position.
 
