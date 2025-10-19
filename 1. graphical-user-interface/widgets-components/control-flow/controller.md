@@ -61,8 +61,12 @@ const ctl = createController({
       name: "Show",
       path: "show",
       field: {
-        type: "boolean",
-        component: "switch",
+        type: "choice",
+        component: "tab",
+        options: [
+          { label: "Show", value: true },
+          { label: "Hide", value: false },
+        ],
       },
     },
     {
@@ -222,7 +226,7 @@ const ctl = createController({
       name: "Elements",
       path: "show",
       field: {
-        type: "boolean",
+        type: "choice",
         component: "tab",
         options: [
           { label: "Show", value: true },
@@ -233,13 +237,13 @@ const ctl = createController({
     {
       name: "Color",
       path: "color",
-      field: { type: "color", component: "color" },
+      field: { type: "alphabet", component: "color" },
     },
     {
       name: "Projection",
       path: "projection",
       field: {
-        type: "enum",
+        type: "choice",
         component: "tab",
         options: [
           { label: "Perspective", value: "Perspective" },
@@ -251,7 +255,7 @@ const ctl = createController({
       name: "Direction",
       path: "direction",
       field: {
-        type: "enum",
+        type: "choice",
         component: "tab",
         options: [
           { label: "T", value: "Top" },
@@ -265,7 +269,7 @@ const ctl = createController({
       name: "Gizmo",
       path: "gizmo",
       field: {
-        type: "enum",
+        type: "choice",
         component: "tab",
         options: [
           { icon: "AxesGizmoIcon", value: "AxesGizmo" },
@@ -421,13 +425,11 @@ If you know how to style a `Switch`, you already know how to style it in a contr
 
 ### Field Types
 
-| Type        | Component Options                     | Options Required      | Props                    |
-| ----------- | ------------------------------------- | --------------------- | ------------------------ |
-| `"string"`  | `"textfield"`                         | ❌                    | Any text input props     |
-| `"color"`   | `"color"`                             | ❌                    | HTML color input props   |
-| `"number"`  | `"numberfield"`                       | ❌                    | Any number input props   |
-| `"boolean"` | `"switch"` \| `"checkbox"` \| `"tab"` | ❌ (optional for tab) | Component-specific props |
-| `"enum"`    | `"tab"` \| `"select"` \| `"radio"`    | ✅                    | Component-specific props |
+| Type         | Component Options                                       | Options Required      | Props                    |
+| ------------ | ------------------------------------------------------- | --------------------- | ------------------------ |
+| `"alphabet"`| `"textfield"` \| `"color"`                              | ❌                    | Text/color input props   |
+| `"numeric"` | `"numberfield"`                                        | ❌                    | Number input props       |
+| `"choice"`  | `"tab"` \| `"select"` \| `"radio"` \| `"switch"` \| `"checkbox"` | ✅                    | Component-specific props |
 
 ### ControllerInstance Methods
 
