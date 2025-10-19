@@ -370,6 +370,87 @@ const ctl = createController({
 });
 ```
 
+## Reactivity: Keeping controller UIs in sync while a presentation is open
+
+InSpatial's controllers are built on reactive signals, which means they automatically respond to state changes. But sometimes you need more control: swapping between different controllers, showing or hiding presentations based on conditions, or refreshing content when underlying data changes. This section shows you how to handle these real-world scenarios.
+
+> **Terminology:**
+>
+> - **Reactive `as`**: Passing a computed `$(() => ...)` value so the presentation reads the current controller every render.
+> - **Post-flush refresh**: Waiting until batched updates finish using `nextTick()`, then reopening so layout and content are re-measured.
+> - **Conditional rendering**: Showing different controllers or presentations based on your app's state.
+
+#### 1. Swapping controllers dynamically with reactive `as`
+
+Sometimes you want to show different controllers based on your app's state. For example, a settings panel that switches between "Viewport Settings" and "Simulator Settings" depending on what the user is editing.
+
+```jsx
+import { Popover } from "@inspatial/kit/presentation";
+import { $ } from "@inspatial/kit/state";
+import { ViewportController } from "./viewport-controller.ts";
+import { SimulatorController } from "./simulator-controller.ts";
+import { useEditor } from "./state.ts";
+
+export function DynamicSettingsPanel() {
+  const { activeMode } = useEditor;
+
+  return (
+    <>
+      <Button on:presentation={{ id: "settings", action: "toggle" }}>
+        Settings
+      </Button>
+
+      <Popover
+        id="settings"
+        as={$(() =>
+          activeMode.get() === "simulator"
+            ? SimulatorController
+            : ViewportController
+        )}
+      />
+    </>
+  );
+}
+```
+
+The `$()` wrapper makes the `as` prop reactive. When `activeMode` changes, the popover automatically switches controllers without you having to close and reopen it manually.
+
+#### 2. Manual refresh when signals change (using `watch` + `nextTick`)
+
+In some cases, when the user wants to change a mostly static presentation view, you may need to force a refresh. This is helpful when the `as` prop does not change, but you want the presentation to react to internal state updates or remeasure its layout, size, or position.
+
+```jsx
+import { PresentationRegistry } from "@inspatial/kit/presentation";
+import { watch, nextTick } from "@inspatial/kit/signal";
+import { useViewport } from "./state.ts";
+
+export function EditorViewport() {
+  const { settings } = useViewport;
+
+  // Watch for settings changes and refresh the open popover
+  watch(() => {
+    settings.get(); // Create dependency
+    const id = "viewport-settings";
+
+    if (PresentationRegistry.getOpen(id)) {
+      PresentationRegistry.setOpen(id, false);
+      nextTick(() => PresentationRegistry.setOpen(id, true));
+    }
+  });
+
+  return (
+    <>
+      <Button on:presentation={{ id: "viewport-settings", action: "toggle" }}>
+        Settings
+      </Button>
+      <Popover id="viewport-settings" as={ViewportController} />
+    </>
+  );
+}
+```
+
+The `watch` effect observes `settings`. If it changes while the popover is open, we close it, wait for the scheduler flush with `nextTick()`, then reopen it. This ensures the presentation rebinds to the latest state and recalculates its position.
+
 ---
 
 <details>
@@ -382,6 +463,8 @@ The Controller acts purely as an orchestration layer it doesn't create new UI pr
 - **Zero abstraction tax**: The rendered components are the actual widgets from `@in/widget`, not wrapper proxies. This means styling, accessibility, and behavior are identical whether you write `<Switch>` manually or let the controller render it.
 
 - **Path-to-signal mapping**: When you call `ctl.register("theme.mode")`, the controller resolves that path to the correct signal in your state tree (or its own internal state). For embedded mode, it uses `cfg.map` to alias controller paths to target state paths, enabling zero-copy orchestration.
+
+Controllers operate on signals, which batch updates and flush at the end of each tick. Presentations like `Popover` measure their position based on layout, so if you change controller content, the popover might be in the wrong place until it remeasures. That's why `nextTick()` exists: it schedules code to run after the flush, ensuring the layout is settled before you trigger remeasure logic.
 
 - **Shallow reconstruction for nested writes**: Deep path updates like `ctl.set("viewport.grid.color", "#ff0000")` don't mutate nested objects. Instead, the controller reads the top-level signal's current value, creates a shallow copy with the nested change applied, then writes back to the top-level signal. This preserves reactivity while avoiding unnecessary re-renders.
 
@@ -425,11 +508,11 @@ If you know how to style a `Switch`, you already know how to style it in a contr
 
 ### Field Types
 
-| Type         | Component Options                                       | Options Required      | Props                    |
-| ------------ | ------------------------------------------------------- | --------------------- | ------------------------ |
-| `"alphabet"`| `"textfield"` \| `"color"`                              | ❌                    | Text/color input props   |
-| `"numeric"` | `"numberfield"`                                        | ❌                    | Number input props       |
-| `"choice"`  | `"tab"` \| `"select"` \| `"radio"` \| `"switch"` \| `"checkbox"` | ✅                    | Component-specific props |
+| Type         | Component Options                                                | Options Required | Props                    |
+| ------------ | ---------------------------------------------------------------- | ---------------- | ------------------------ |
+| `"alphabet"` | `"textfield"` \| `"color"`                                       | ❌               | Text/color input props   |
+| `"numeric"`  | `"numberfield"`                                                  | ❌               | Number input props       |
+| `"choice"`   | `"tab"` \| `"select"` \| `"radio"` \| `"switch"` \| `"checkbox"` | ✅               | Component-specific props |
 
 ### ControllerInstance Methods
 
