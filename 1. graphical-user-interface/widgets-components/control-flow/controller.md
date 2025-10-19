@@ -307,6 +307,86 @@ export function ViewportController() {
 
 Now when a user changes "Projection" in the popover, `useViewport.projection` updates instantly across your entire app. No manual wiring, no event handlers, no useState calls.
 
+### Unique or Per-User Controller Instances
+
+When building multi-player or multi-tenant, applications or spatial experiences... each user needs their own controller instance. Think of it like a personalized remote control: everyone gets their own that only changes their settings, not someone else's.
+
+The key is to create controllers dynamically rather than at module scope. Here's how:
+
+#### Don't do this (shared across all users)
+
+```ts
+// ❌ Bad: All users share the same controller
+import { createController } from "@inspatial/kit/control-flow";
+
+export const SimulatorController = createController({
+  id: "simulator-controller", // Single shared id
+  mode: "manipulator",
+  state: useSimulator, // Single shared state
+  settings: [
+    /* ... */
+  ],
+});
+```
+
+#### Do this instead (per-user instances)
+
+```ts
+// ✅ Good: Factory function creates per-user controllers
+import { createController } from "@inspatial/kit/control-flow";
+import type { ControllerSettingsProps } from "@inspatial/kit/control-flow/controller/type.ts";
+
+export function SimulatorController(
+  userId: string
+): ControllerSettingsProps<any> {
+  return createController({
+    id: `${userId}-simulator-controller`, // Unique id per user
+    mode: "manipulator",
+    state: useSimulator, // Or pass user-specific state here
+    settings: [
+      {
+        name: "Frame",
+        path: "frame",
+        field: {
+          type: "choice",
+          component: "tab",
+          options: [
+            { label: "Inner", value: "Inner" },
+            { label: "Outer", value: "Outer" },
+          ],
+        },
+      },
+      // ... more settings
+    ],
+  });
+}
+```
+
+#### Use it in your component
+
+```jsx
+import { Controller } from "@inspatial/kit/control-flow";
+import { createSimulatorController } from "./simulator-controller.ts";
+import { useAuth } from "./auth.ts";
+
+export function SimulatorSettings() {
+  const { userId } = useAuth;
+
+  // Create instance once per user (stable across renders)
+  const ctl = SimulatorController(userId);
+
+  return (
+    <Popover id="simulator-settings">
+      <Controller as={ctl} />
+    </Popover>
+  );
+}
+```
+
+> **Note:** Controller ids must be stable for the lifetime of the instance. Derive them from stable identifiers like `userId`, session id, or workspace id. Avoid generating unique ids with in-vaders like `createUniqueId()` or random values inside reactive code, as they'll create new controllers on every render.
+
+> **Note:** If you need complete data isolation between users (not just separate controllers), ensure the `state` you pass is also per-user. For example, use keyed storage backends or pass different state instances per user.
+
 ## "Form" Mode (🔴 Unstable)
 
 When building the InForm extension, we realized forms and editor manipulators share most mechanics. Forms are essentially asynchronous controllers with validation and submission. Rather than maintaining two overlapping systems, `createController` has a `mode: "form"` that layers validation semantics over the manipulator foundation.
