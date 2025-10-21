@@ -1,0 +1,3 @@
+# Slider  
+
+On InSpatial Kit, the Number Field is intentionally designed without built-in min and max value controls. We believe that the components should remain unrestricted, allowing for maximum flexibility. When you need to enforce specific minimum and maximum values, the `Slider` component is the ideal choice. Its very nature is defined by clear start and end points, making it perfect for selecting values within a defined range. Using each component for its intended purpose ensures clarity and best practices, counteracting common misconceptions about input controls.

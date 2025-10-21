@@ -2,7 +2,9 @@
 
 #### A flexible number input with increment, decrement, and reset controls
 
-The `Counter` component is like a smart calculator button pad for your app. Think of it as the controls you'd find on a volume knob, a quantity picker in a shopping cart, or any place where users need to step a number up or down with effectively. It handles the math for you, lets users tap to change values one step at a time, or hold down a button to keep counting perfect for when you need precise control over numbers without typing.
+A `Counter` is an [Input](#) component often used in [Controllers](../../control-flow/controller.md) forms settings interfaces, allowing users to increment or decrement a number value. 
+
+Think of it as the controls you'd find on a volume knob, a quantity picker in a shopping cart, or any place where users need to step a number up or down with effectively. It handles the math for you, lets users tap to change values one step at a time, or hold down a button to keep counting perfect for when you need precise control over numbers without typing.
 
 Counter automatically wires up its three child buttons (increment, decrement, reset) and keeps everything in sync. If you pass it an external value (like a signal from your app state), it updates that signal directly. If you don't, it manages its own internal count. Either way, you get consistent, interactive behavior out of the box.
 
