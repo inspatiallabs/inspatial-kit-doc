@@ -12,9 +12,9 @@ In **form mode**, changes are held locally until the user submits. That's when v
 
 The magic? Both modes can work with state you already have (embedded mode) or create their own. In embedded mode, the controller operates on your existing signals, so manipulator changes propagate instantly, while form mode still holds edits locally until submission. For nested values, it's smart enough to update only what changed, keeping everything reactive and fast.
 
-InSpatial Kit exposes controllers for every built-in widget and component, enabling you to build cross-platform, universal creative tools dramatically faster. When paired with InSpatial [Cloud]("https://www.inspatial.cloud") for multi-user collaboration and backend integration, development speed and flexibility are multiplied making real-time, collaborative tool creation up to 100x more efficient.
+InSpatial Kit exposes controllers for every built-in widget and component, enabling you to build cross-platform, universal creative tools dramatically faster. When paired with InSpatial [Cloud](https://www.inspatial.cloud) for multi-user collaboration and backend integration, development speed and flexibility are multiplied making real-time, collaborative tool creation up to 100x more efficient.
 
-The Controller engine serves as the core foundation of the InSpatial [App]("https://www.inspatial.app") development engine, powering its UI manipulation and orchestration capabilities.
+The Controller engine serves as the core foundation of the InSpatial [App](https://www.inspatial.app) development engine, powering its UI manipulation and orchestration capabilities.
 
 > **Terminology:**
 >
