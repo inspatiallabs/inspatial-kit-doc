@@ -21,9 +21,9 @@ InSpatial Kit's core DNA is universal rendering. We asked a simple but revolutio
 
 What if you could write JSX once and deploy everywhere web, mobile, embedded devices (Apple Watch, Google Watch), spatial platforms (Vision Pro, Meta Quest, AndroidXR) without rewriting for react-dom here and react-native there?
 
-### Why We Love JSX (but React failed to finish the job)
+### We Love JSX
 
-JSX works. Despite opinions, it's why most developers choose React alongside its ecosystem. We wanted to preserve that familiarity while solving React's fundamental limitations:
+JSX works. Despite opinions, it's why most developers choose React alongside its ecosystem. We wanted to preserve that familiarity while solving the fundamental limitations:
 
 - **No Virtual DOM overhead** - All the elegance, none of the performance bottlenecks
 - **Runtime-first** - No build steps, compilation, transpilation, or the "10 million buzzwords you don't need to get started"
@@ -33,19 +33,17 @@ JSX works. Despite opinions, it's why most developers choose React alongside its
 
 ### The Fragmentation Problem
 
-React creates a fragmented ecosystem thousands of dependencies trying to stitch together with no unified structure. We wanted harmony, not chaos.
+Modern frameworks are typically built around one core concept if not the native environment, then the DOM or something similarly narrow... never considering the complete, holistic system. This leaves developers to fill the gaps by creating countless supporting utilities, resulting in a fragmented ecosystem: thousands of dependencies, each trying to patch holes rather than work in concert. We wanted to bring harmony, not chaos.
 
 ### The Continuity Problem
 
-If we built on top of React, we'd inherit the same continuity issues plaguing the other 10,000+ frameworks in React's ecosystem. We'd be limited by React's architectural decisions and performance constraints.
+If we built on top of an existing framework, we'd inherit the same continuity issues. We'd be limited by the framework's architectural decisions and performance constraints.
 
-React is the "operating system of the modern web." We're building a more universal operating system. We're inspired by our predecessors we embrace the good (JSX, component model), fix the bad (virtual DOM, fragmentation), and complete the incomplete (true universal rendering).
+We're building a truly universal development environment. Inspired by the pioneers before us, we intentionally embrace what works, improve what doesn't, and deliver what's been missing: genuine universal rendering and unreal level performance. 
 
-We're not replacing React to be different. We're creating what React could have been if it was designed for today's multi-platform, GPU-accelerated, AI first, universal computing reality.
+We're creating what the frameworks you love could have been if they were designed for today's multi-platform, GPU-accelerated, AI first, universal computing reality.
 
 ### JSX Is Just One Templating Choice Among Many
-
-**InSpatial JSX Runtime Looks Like React But Isn't Built On It**
 
 While there's significant discussion around JSX, it's crucial to understand that **JSX is simply a templating choice** no different from XML, HTML, or Vue's Single File Component (SFC) templating syntax.
 
@@ -62,10 +60,6 @@ Just as we support JSX to make React developers feel at home **and their existin
 We're **obsessively runtime-focused**. Designing systems around bundlers, compilers, or type generators creates poor API design that eventually corrupts the entire ecosystem. Every InSpatial package is built with zero expectation of static analysis everything must work at runtime and be testable without bundling.
 
 When browsers are involved, we allow simple `--import` loaders for basic transformations like TypeScript and JSX, but the core system never depends on them.
-
-#### No File Extensions, No Compilation
-
-All templating approaches work **without specialized file extensions**. You don't need `.vue`, `.jsx`, or `.tsx` files because we've eliminated the compilation step entirely everything runs directly at runtime.
 
 #### Portability Without Rewriting
 

@@ -32,7 +32,7 @@ Before you start:
 - [Popover](#) - One of the three presentation widgets that support controllers
 - [Drawer](#) - Another vessel for controllers
 - [Modal](#) - Full-screen controller presentation
-- [Accordion](#) - Another suitable vessel for controllers
+- [Detail](#) - Another suitable vessel for controllers
 - [Presentation](#) - The Presentation Widget
 - [Ornament](#) - The Ornament Widget
 - Optional understanding of [Interactivity](../2.%20interactivity/introduction🟡.md)
@@ -43,8 +43,7 @@ If you've used drag-and-drop tools like Figma or embedded tools like Tweakpane/L
 
 - Own or embed state (zero-copy)
 - Declarative settings schema
-- Auto-render inside a Presentation Popover/Drawer/Modal
-- Auto-render inside an Ornament Accordion
+- Auto-render inside a Presentation Popover/Drawer/Modal/Detail
 - Trigger-first events (e.g., `on:input`)
 
 > **Note:** In embedded mode, the controller writes directly to your state signals. For nested paths, it updates the appropriate top-level signal with a merged value to keep updates efficient and reactive.
