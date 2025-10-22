@@ -123,6 +123,39 @@ InSpatial Kit includes 10,000+ professionally designed icons covering all use ca
 
 > - **Let your IDE or UDE help you**: Type `variant=""` and wait for autocomplete suggestions this prevents typos and helps you discover available icons.
 
+### Utility: getIcon
+
+When an icon value can be a string variant, a props object, a custom JSX node, or null/undefined, use `getIcon` to normalize and render it with a fallback.
+
+```ts
+getIcon(icon: any, fallbackVariant: IconVariant): JSX.Element
+```
+
+```jsx
+import { getIcon } from "@inspatial/kit/icon";
+
+// 1) Unknown source (string | { variant, ...props } | JSX | null)
+function Row({ item }) {
+  return getIcon(item.icon, "BrandIcon");
+}
+
+// 2) String variant
+getIcon("ClockIcon", "BrandIcon");
+
+// 3) Props object (applies size/format/etc.)
+getIcon({ variant: "ClockIcon", size: "sm", format: "outline" }, "BrandIcon");
+
+// 4) Custom JSX node
+getIcon(<MyCustomIcon />, "BrandIcon");
+```
+
+- If `icon` is null/undefined, the `fallbackVariant` is rendered.
+- If `icon` is a string, it's treated as a `variant`.
+- If `icon` is an object with a `variant` string, it renders `<Icon {...icon} />`.
+- Otherwise `icon` is returned as-is (assumed JSX node).
+
+Note: Variants are typed as PascalCase via `IconVariant` (e.g., `ClockIcon`). The runtime also accepts other casings but prefer typed variants for best DX.
+
 ### API-Props
 
 | Prop        | Type                                                                                                                                                        | Default  | Description                                                  |
