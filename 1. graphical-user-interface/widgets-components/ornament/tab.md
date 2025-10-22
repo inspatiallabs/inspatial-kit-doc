@@ -1,3 +1,9 @@
+# Tab
+
+## Anatomy
+
+Historically Tabs have been used as owners of a view. But this is merely the case because the anatomy of a tab warrants that a Tab is simply a controller of a view.
+
 ### Boolean Mapping
 
 By default, controllable Tabs use string values for their data. However, in many cases especially when there are only two possible tab selections you can opt for a boolean data type instead. This is particularly useful for toggles or yes/no choices.

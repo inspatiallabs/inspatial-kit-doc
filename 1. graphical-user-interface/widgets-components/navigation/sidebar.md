@@ -416,6 +416,9 @@ export function ProjectSidebar() {
 }
 ```
 
+### **Sidebar** vs **Drawer**
+The difference between a Drawer and a Sidebar is in the "presentation". Like most Navigation widgets, a Sidebar is already in View whereas you need an action to trigger a presentation drawer.
+
 ### What You Get
 
 The Sidebar gives you a complete navigation system that:
