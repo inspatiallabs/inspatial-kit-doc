@@ -24,9 +24,13 @@ Before you start:
 - Basic understanding of [JavaScript/TypeScript](https://www.typescriptlang.org/docs/)
 - Basic understanding of [Widgets/Components](../1.%20graphical-user-interface/widgets-components🟡.md)
 
-### 🎮 Core Concepts 
+### 🎮 Core Concepts
 
-## 1. State
+## 1. Signal
+
+The reactive data management system that makes your application values smart and responsive
+
+## 2. State
 
 State in InSpatial is the core mechanism for managing reactive data in your application. It lets you create values that automatically update your UI and logic whenever they change, no manual wiring or update calls needed. State is built on top of low-level signals, but provides a much ergonomic abstraction for everyday development.
 
@@ -128,7 +132,7 @@ vlt install jsr:@in/teract
 
 ---
 
-## 2. Trigger
+## 3. Trigger
 
 Trigger in InSpatial is the universal event system that handles user interactions across all platforms. It lets you respond to clicks, taps, gestures, keyboard input, gamepad controls, and app lifecycle events using a consistent `on:event` syntax no matter whether you're building for web, mobile, or spatial interfaces.
 
