@@ -88,6 +88,7 @@ pnpm dlx jsr add @in/teract
 ```bash
 bunx jsr add @in/teract
 ```
+
 ##
 
 ```bash
@@ -203,9 +204,7 @@ const age = createState(28);
 
 // Computed values that update when profile changes
 const fullName = $(() => `${firstName.value} ${lastName.value}`);
-const displayName = $(
-  () => `${fullName.value} (${age.value} years old)`
-);
+const displayName = $(() => `${fullName.value} (${age.value} years old)`);
 
 console.log(displayName.value); // "Mike Anderson (28 years old)"
 
@@ -1666,11 +1665,15 @@ console.log(jsonString);
 // '{"player":{"name":"Charlotte","score":1500,"level":12},"timestamp":...}'
 ```
 
-#### Primitive Coercion
+#### Auto Coercion
+
+##### What is "Coercion"?
+
+_Coercion_ is a programming term that refers to the automatic conversion of a value from one type to another when required. In the context of signals, coercion means that signals automatically behave like their contained primitive value when participating in expressions or operations that expect a certain type (such as numbers, strings, or booleans).
 
 ##### Automatic type conversion in operations
 
-Signals can be automatically coerced to primitives in mathematical and string operations. Think of it like signals becoming transparent when used in calculations.
+Signals support auto coercion, so they can be automatically converted ("coerced") to primitives in mathematical and string operations. Think of it like signals becoming transparent when used in calculations under the hood, their value is used in place of the signal object itself.
 
 ### Example 1: Ben's Math Operations
 
@@ -1787,9 +1790,7 @@ const benExperience = createState(0);
 
 // Computed values that update automatically
 const experienceNeeded = $(() => benLevel.value * 100);
-const canLevelUp = $(
-  () => benExperience.value >= experienceNeeded.value
-);
+const canLevelUp = $(() => benExperience.value >= experienceNeeded.value);
 const scoreDisplay = $(
   () => `Score: ${benScore.value} (Level ${benLevel.value})`
 );

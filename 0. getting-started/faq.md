@@ -1,3 +1,38 @@
+# IDE vs CDE vs UDE
+
+**IDE (Integrated Development Environment)**
+
+- Code-first interface (VS Code, IntelliJ, Xcode)
+- Flexible and general-purpose for any type of development
+- Requires technical knowledge to use effectively
+- Primarily for developers and engineers
+
+**CDE (Cloud Development Environment)**
+
+- Cloud-hosted IDEs (GitHub Codespaces, Replit, Stackblitz)
+- Still code-first, still requires developer expertise
+- Limited by network connectivity and provider constraints
+
+**UDE (Universal Development Environment)**
+
+- **Visual-first interface** - In a UDE anything you can do with code you can do with a visual interface no more no less.
+- **Opinionated and focused** - specifically designed for anything that renders a graphical user interface (apps, websites, games, xr)
+- **Accessible to non-coders** - project managers and designers can use it without coding knowledge
+- **Code mode available** - developers can switch to traditional coding interface when needed
+- **Intelligence built-in** - comes bundled with LLMs for AI assistance
+- **Truly universal deployment** - cloud by default, can run locally as installed binary
+- **Zero-config rendering** - handles multi-platform deployment automatically
+
+**The Key Difference:**
+All Development environemnt have a `Text/Code Editor` built in but there are major diferences between them.
+
+- **IDE/CDE**: "Here's a blank canvas and some tools - figure out what to build"
+- **UDE**: "Here's a visual interface to build apps, websites, xr and games - code if you want to, but you don't have to"
+
+UDEs can be considered as opinionated higher-level abstraction of IDEs, however they are visual first. This makes development accessible to non-coders in a way an IDE/CDE cannot.
+
+---
+
 # @in vs @inspatial UDE Modules
 
 ## @in UDE Modules
@@ -39,39 +74,6 @@ Think of it this way: frameworks are like moving into a fully furnished house wi
 
 ---
 
-# IDE vs CDE vs UDE
-
-**IDE (Integrated Development Environment)**
-
-- Code-first interface (VS Code, IntelliJ, Xcode)
-- Flexible and general-purpose for any type of development
-- Requires technical knowledge to use effectively
-- Primarily for developers and engineers
-
-**CDE (Cloud Development Environment)**
-
-- Cloud-hosted IDEs (GitHub Codespaces, Replit, Stackblitz)
-- Still code-first, still requires developer expertise
-- Limited by network connectivity and provider constraints
-
-**UDE (Universal Development Environment)**
-
-- **Visual-first interface** - In a UDE anything you can do with code you can do with a visual interface no more no less.
-- **Opinionated and focused** - specifically designed for anything that renders a graphical user interface (apps, websites, games, xr)
-- **Accessible to non-coders** - project managers and designers can use it without coding knowledge
-- **Code mode available** - developers can switch to traditional coding interface when needed
-- **Intelligence built-in** - comes bundled with LLMs for AI assistance
-- **Truly universal deployment** - cloud by default, can run locally as installed binary
-- **Zero-config rendering** - handles multi-platform deployment automatically
-
-**The Key Difference:**
-All Development environemnt have a `Text/Code Editor` built in but there are major diferences between them.
-
-- **IDE/CDE**: "Here's a blank canvas and some tools - figure out what to build"
-- **UDE**: "Here's a visual interface to build apps, websites, xr and games - code if you want to, but you don't have to"
-
-UDEs can be considered as opinionated higher-level abstraction of IDEs, however they are visual first. This makes development accessible to non-coders in a way an IDE/CDE cannot.
-
 # InSpatial Kit vs InSpatial Cloud vs InSpatial
 
 - **InSpatial Kit** is a Client/Frontend **Framework.**
@@ -92,6 +94,7 @@ export function LooksLikeReactNative() {
   return <Text>Hello World</Text>;
 }
 ```
+
 And, of course, you can write switch to the new JSX-SFC with no return statement:
 
 ```jsx
@@ -101,4 +104,4 @@ export function SyntaxWithNoReturn() {
 }
 ```
 
-This deliberate design ensures that both migration and onboarding are straightforward for developers already familiar with React or React Native with zero learning curve. 
+This deliberate design ensures that both migration and onboarding are straightforward for developers already familiar with React or React Native with zero learning curve.

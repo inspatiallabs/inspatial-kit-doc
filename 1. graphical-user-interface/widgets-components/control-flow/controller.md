@@ -86,7 +86,9 @@ const ctl = createController({
 
 #### 2. Render Your Controller
 
-The cleanest way is to let the presentation widget auto-render it:
+
+##### Controller as Presentation
+The simplest and most seamless approach is to allow the presentation widget (e.g., `Popover`, `Drawer`, `Modal`, or `Detail`) to automatically render your controller instance for you. By passing the controller instance directly to the presentation widget’s `as` prop, InSpatial Kit handles all of the rendering logic, layout, and necessary context...resulting in a zero-boilerplate, fully integrated editing panel. This pattern eliminates manual wiring and ensures your controller always appears styled, reactive, and contextually aware within the presentation surface.
 
 ```jsx
 import { Popover } from "@inspatial/kit/presentation";
@@ -106,6 +108,7 @@ export function MyController() {
 }
 ```
 
+##### Controller as Function
 Alternatively, you can call the Controller function directly if you'd like more control over the layout. This approach is helpful when you want to display the controller alongside other components in your presentation widget.
 
 ```jsx
@@ -138,8 +141,8 @@ export function MyController() {
   )
 }
 ```
-
-You can nest the Controller component directly. (🔴 Unstable)
+#####  `<Controller>` as Component (🔴 Unstable)
+Sometimes, you may want to render a controller outside of a presentation. The `<Controller>` component provides this flexibility, as traditional controllers are typically tied to specific presentation widgets. With `<Controller>`, you can use controllers both inside and outside of presentation components. Like the Controller function, the `<Controller>` component provides full customization options.
 
 ```jsx
 import { Popover } from "@inspatial/kit/presentation";
