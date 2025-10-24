@@ -23,9 +23,17 @@ The `<View>` component is not just a passive box. It’s your **stage**.
 
 Because `View` is the stage, it controls these high-level experiences. You don’t sprinkle scroll or motion randomly across elements; you anchor them at the structural level.
 
-**Example Usage**
+## Usage
 
-```typescript
+**Import**
+
+```tsx
+import { View } from "@inspatial/kit/structure";
+```
+
+**Example**
+
+```tsx
 <View>
   <Stack variant="yStack" className="space-y-2 p-2 bg-(--brand) w-full">
     {Array.from({ length: 30 }).map((_, i) => (
@@ -39,7 +47,7 @@ Because `View` is the stage, it controls these high-level experiences. You don�
 
 **View `ScrollBar`Themes & Properties**
 
-```typescript
+```tsx
 // Thin (default)
 <View scrollbar scrollbarTheme="thin">...</View>
 

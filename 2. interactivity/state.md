@@ -136,25 +136,25 @@ useCounter.count.get();
 #### Separation pattern (advanced)
 
 ```ts
-const gameState = createState({ x: 0, y: 0, hp: 100, score: 0 });
+const useGame = createState({ x: 0, y: 0, hp: 100, score: 0 });
 
 // Direct Signal Action
-const addScore = createAction(gameState.score, (s, n = 1) => s + n);
+const setAddScore = createAction(useGame.score, (s, n = 1) => s + n);
 
 // Tuple Actions
-const damage = createAction([gameState, "hp"], (hp, amt = 10) =>
+const setDamage = createAction([useGame, "hp"], (hp, amt = 10) =>
   Math.max(0, hp - amt)
 );
 
 // Batch Actions
-const move = createAction(gameState, {
+const handleMove = createAction(useGame, {
   moveX: { key: "x", fn: (x, dx: number) => x + dx },
   moveY: { key: "y", fn: (y, dy: number) => y + dy },
 });
 
 // Optional persistence
-createStorage(gameState, {
-  key: "gameState",
+createStorage(useGame, {
+  key: "useGame",
   backend: "local",
   include: ["hp", "score"],
 });
@@ -164,29 +164,32 @@ createStorage(gameState, {
 
 - Signals on every key
   ```ts
-  const s = createState({ a: 1, b: 2 });
-  s.a.set(3); // Write
-  s.b.get(); // Reactive read
-  s.a.peek(); // Non-reactive read
+  const useData = createState({ a: 1, b: 2 });
+  useData.a.set(3); // Write
+  useData.b.get(); // Reactive read
+  useData.a.peek(); // Non-reactive read
   ```
 - Batch/reset/snapshot/subscribe
   ```ts
-  s.batch((v) => {
+  useData.batch((v) => {
     v.a.set(10);
     v.b.set(20);
   });
-  s.reset();
-  s.snapshot();
-  const off = s.subscribe((snap) => console.log(snap));
+  useData.reset();
+  useData.snapshot();
+  const off = useData.subscribe((snap) => console.log(snap));
   off();
   ```
 - Derived values
   ```ts
-  const score2x = $(() => gameState.score.get() * 2);
+  const score2x = $(() => useGame.score.get() * 2);
   ```
 - Action Trigger options
   ```ts
-  const inc = createAction(s.a, (v) => v + 1, { throttle: 50, once: false });
+  const setInc = createAction(useData.a, (v) => v + 1, {
+    throttle: 50,
+    once: false,
+  });
   ```
 
 ### Type Inference and Typing Guide (Actions, Keys, Storage)
@@ -197,7 +200,7 @@ createStorage(gameState, {
 
 - Prefer letting TypeScript infer from `initialState`:
   ```ts
-  const s = createState.in({
+  const useCounter = createState.in({
     initialState: { count: 0, name: "ben" },
   });
   ```
@@ -215,7 +218,7 @@ createStorage(gameState, {
     name: string;
   }
 
-  const state = createState.in({
+  const useCounter = createState.in({
     initialState: <Counter>{ count: 0, name: "" },
     action: <TriggerDefsFor<Counter>>{
       increment: { key: "count", fn: (c, n = 1) => c + n },
@@ -225,7 +228,7 @@ createStorage(gameState, {
   });
   ```
 
-Result: `state.action.increment` and `state.action.setName` are callable functions with correct parameter types.
+Result: `useCounter.action.increment` and `useCounter.action.setName` are callable functions with correct parameter types.
 
 #### 3) Strongly-typed triggers (separation pattern)
 
@@ -236,22 +239,22 @@ Result: `state.action.increment` and `state.action.setName` are callable functio
   import { createAction } from "@in/teract/state/action.ts";
   import type { TriggerFunctionsFromDefs, TriggerDefsFor } from "@in/teract/state/action.ts";
 
-  const s = createState({ count: 0, name: "" });
+  const useCounter = createState({ count: 0, name: "" });
 
-  const defs: TriggerDefsFor<typeof s.snapshot()> = {
+  const defs: TriggerDefsFor<typeof useCounter.snapshot()> = {
     inc:    { key: "count", fn: (c, n = 1) => c + n },
     setName:{ key: "name",  fn: (_c, v: string) => v },
   };
 
-  const action = createAction(s, defs) as TriggerFunctionsFromDefs<typeof defs>;
+  const handleCounter = createAction(useCounter, defs) as TriggerFunctionsFromDefs<typeof defs>;
 
-  action.inc();      // ok
-  action.setName("");
+  handleCounter.inc();      // ok
+  handleCounter.setName("");
   ```
 
 Notes:
 
-- `typeof s.snapshot()` is a convenient way to get the state shape.
+- `typeof useCounter.snapshot()` is a convenient way to get the state shape.
 - You can also define a `type`/`interface` and reuse it for both state and defs.
 
 #### 4) Enhanced action targets (no string keys)
@@ -259,17 +262,17 @@ Notes:
 For cross-state or nested targets, use enhanced targets instead of `key`:
 
 ```ts
-const s = createState({ grid: "None" as "None" | "Line" | "Dot" });
+const useGrid = createState({ grid: "None" as "None" | "Line" | "Dot" });
 
-// direct signal
-const setGrid = createAction(s.grid, (_c, v: typeof s.grid.peek()) => v);
+// direct signal action
+const setGrid = createAction(useGrid.grid, (_c, v: typeof useGrid.grid.peek()) => v);
 
 // state tuple [state, key]
-const setGrid2 = createAction([s, "grid"], (_c, v) => v);
+const setGrid2 = createAction([useGrid, "grid"], (_c, v) => v);
 
 // batch enhanced defs
-const triggers = createAction(s, {
-  updateGrid: { target: [s, "grid"], fn: (_c, v: typeof s.grid.peek()) => v },
+const handleGrid = createAction(useGrid, {
+  updateGrid: { target: [useGrid, "grid"], fn: (_c, v: typeof useGrid.grid.peek()) => v },
 });
 ```
 
@@ -286,7 +289,7 @@ interface AppState {
   devMode: { value: boolean };
 }
 
-const app = createState.in({
+const useApp = createState.in({
   initialState: <AppState>{
     mode: "Spec",
     window: { view: "Hierarchy" },
@@ -313,25 +316,25 @@ If you need custom serialization, provide `serialize`/`deserialize` while still 
 - Explicit pattern with fully typed keys:
 
   ```ts
-  const ui = createState.in({
+  const useUI = createState.in({
     initialState: { isOpen: false, count: 0 },
     action: {
       toggle: { key: "isOpen", fn: (v: boolean) => !v },
       inc: { key: "count", fn: (c: number, n = 1) => c + n },
     },
-    storage: { key: "ui", backend: "local", include: ["isOpen", "count"] },
+    storage: { key: "useUI", backend: "local", include: ["isOpen", "count"] },
   });
   ```
 
 - Separation pattern with cross-state trigger:
 
   ```ts
-  const a = createState({ value: 0 });
-  const b = createState({ other: 1 });
+  const useA = createState({ value: 0 });
+  const useB = createState({ other: 1 });
 
-  // enhance target to update b.other based on a.value
-  const sync = createAction([b, "other"], (_c) => a.value.peek());
-  sync();
+  // enhance target to update useB.other based on useA.value
+  const setSync = createAction([useB, "other"], (_c) => useA.value.peek());
+  setSync();
   ```
 
 ---
@@ -373,28 +376,32 @@ If you need custom serialization, provide `serialize`/`deserialize` while still 
 **Scalar (simplest):**
 
 ```ts
-const count = createState(0);
+const useCount = createState(0);
 ```
 
 **Explicit (apps, websites):**
 
 ```ts
-const user = createState.in({
+const useUser = createState.in({
   initialState: { name: "Ben", age: 30 },
   action: { updateAge: { key: "age", fn: (age, n) => age + n } },
-  storage: { key: "user", backend: "local" },
+  storage: { key: "useUser", backend: "local" },
 });
 ```
 
 **Separation (games, extensions):**
 
 ```ts
-const player = createState({ hp: 100, x: 0, y: 0 });
-const move = createAction(player, {
+const usePlayer = createState({ hp: 100, x: 0, y: 0 });
+const handleMove = createAction(usePlayer, {
   moveX: { key: "x", fn: (x, dx) => x + dx },
   moveY: { key: "y", fn: (y, dy) => y + dy },
 });
-createStorage(player, { key: "player", backend: "local", include: ["hp"] });
+createStorage(usePlayer, {
+  key: "usePlayer",
+  backend: "local",
+  include: ["hp"],
+});
 ```
 
 ---
@@ -408,10 +415,10 @@ createStorage(player, { key: "player", backend: "local", include: ["hp"] });
 import { createState } from "@inspatial/kit/state";
 
 const Counter = () => {
-  const counter = createState({ count: 0 });
+  const useCounter = createState({ count: 0 });
   return () => (
-    <XStack on:tap={() => counter.count.set(counter.count.get() + 1)}>
-      Count: {counter.count}
+    <XStack on:tap={() => useCounter.count.set(useCounter.count.get() + 1)}>
+      Count: {useCounter.count}
     </XStack>
   );
 };
@@ -424,11 +431,11 @@ const Counter = () => {
 import { createState } from "@inspatial/kit/state";
 
 const App = () => {
-  const ui = createState({ isVisible: true });
+  const useUI = createState({ isVisible: true });
   return (
     <XStack>
-      <Show when={ui.isVisible}>{() => <Slot>Visible content</Slot>}</Show>
-      <Button on:tap={() => ui.isVisible.set(!ui.isVisible.get())}>
+      <Show when={useUI.isVisible}>{() => <Slot>Visible content</Slot>}</Show>
+      <Button on:tap={() => useUI.isVisible.set(!useUI.isVisible.get())}>
         Toggle
       </Button>
     </XStack>
@@ -443,10 +450,10 @@ const App = () => {
 import { createState } from "@inspatial/kit/state";
 
 const TodoList = () => {
-  const state = createState({ todos: [{ id: 1, text: "Learn InSpatial" }] });
+  const useTodos = createState({ todos: [{ id: 1, text: "Learn InSpatial" }] });
   return (
     <YStack>
-      <List each={state.todos} track="id">
+      <List each={useTodos.todos} track="id">
         {(todo) => <Text>{todo.text}</Text>}
       </List>
     </YStack>
@@ -1174,14 +1181,14 @@ await nextTick(); // Waits for natural batch cycle
 
 ```jsx
 // ❌  DON'T DO THIS: It won't react properly
-<Button on:tap={() => useTheme.action.setToggle()}>
+<Button on:tap={() => useTheme.action.handleToggle()}>
   {$(() =>
     useTheme.mode.get() === "dark" ? <LightModeIcon /> : <DarkModeIcon />
   )}
 </Button>
 
 // ✅ DO THIS: Use Show for reactive conditional rendering
-<Button on:tap={() => useTheme.action.setToggle()}>
+<Button on:tap={() => useTheme.action.handleToggle()}>
   <Show
     when={$(() => useTheme.mode.get() === "dark")}
     otherwise={() => <DarkModeIcon />}
@@ -1265,20 +1272,20 @@ export function InputField({ variant }) {
 
 ```javascript
 // ❌ DON'T DO THIS: Not reactive
-const s = createState({ count: 0 });
-const message = `Count is: ${s.count.get()}`; // Evaluates once only
+const useCounter = createState({ count: 0 });
+const message = `Count is: ${useCounter.count.get()}`; // Evaluates once only
 
 // ✅ DO THIS: Wrap in $() for reactivity
 import { createState, $ } from "@inspatial/kit/state";
 
-const s = createState({ count: 0 });
-const message = $(() => `Count is: ${s.count.get()}`); // Updates when count changes
+const useCounter = createState({ count: 0 });
+const message = $(() => `Count is: ${useCounter.count.get()}`); // Updates when count changes
 
 // Or inline in JSX:
-<XStack>{$(() => `Count is: ${s.count.get()}`)}</XStack>
+<XStack>{$(() => `Count is: ${useCounter.count.get()}`)}</XStack>
 
 // Auto-coercion also works (Symbol.toPrimitive):
-<XStack>{$(() => `Count is: ${s.count}`)}</XStack>
+<XStack>{$(() => `Count is: ${useCounter.count}`)}</XStack>
 ```
 
 ### 7. Async Components
@@ -1311,13 +1318,13 @@ const PostCard = async ({ id }: PostID) => {
 import { createState, $ } from "@inspatial/kit/state";
 
 // State-backed signal comparisons and derived values
-const s = createState({ count: 5, status: "loading" });
-const isPositive = s.count.gt(0); // count > 0
-const isZero = s.count.eq(0); // count === 0
-const isEven = $(() => s.count.get() % 2 === 0);
+const useData = createState({ count: 5, status: "loading" });
+const isPositive = useData.count.gt(0); // count > 0
+const isZero = useData.count.eq(0); // count === 0
+const isEven = $(() => useData.count.get() % 2 === 0);
 
 // Derived values remain the same using $()
-const label = $(() => `Status: ${s.status.get()}`);
+const label = $(() => `Status: ${useData.status.get()}`);
 ```
 
 ### 9. Event Handling with Modifiers
@@ -1330,9 +1337,9 @@ const label = $(() => `Status: ${s.status.get()}`);
 <Button on-prevent:tap={() => console.log('prevented')}>Prevent Default</Button>
 
 // State-driven event handlers
-const s = createState({ count: 0 });
-<Button on:tap={() => s.count.set(s.count.get() + 1)}>
-  Increment ({s.count})
+const useCounter = createState({ count: 0 });
+<Button on:tap={() => useCounter.count.set(useCounter.count.get() + 1)}>
+  Increment ({useCounter.count})
 </Button>
 ```
 
@@ -1342,8 +1349,8 @@ const s = createState({ count: 0 });
 // View literals with reactive interpolation (State)
 import { createState } from "@inspatial/kit/state";
 
-const s = createState({ templateId: 123 });
-const templateUrl = t`https://inspatial.store/template?id=${s.templateId}`;
+const useTemplate = createState({ templateId: 123 });
+const templateUrl = t`https://inspatial.store/template?id=${useTemplate.templateId}`;
 ```
 
 ## Understanding Signal Auto-Coercion in State
@@ -1351,25 +1358,25 @@ const templateUrl = t`https://inspatial.store/template?id=${s.templateId}`;
 Each property in a `createState` object is a signal, which means it benefits from `Symbol.toPrimitive` auto-coercion:
 
 ```typescript
-const s = createState({ count: 5, name: "Ben" });
+const useUser = createState({ count: 5, name: "Ben" });
 
 // ✅ Auto-coercion in operations
-s.count > 10;              // JavaScript calls .get() automatically
-s.count + 5;               // Auto-coerces to number
-`Hello, ${s.name}`;        // Auto-coerces to string
+useUser.count > 10;              // JavaScript calls .get() automatically
+useUser.count + 5;               // Auto-coerces to number
+`Hello, ${useUser.name}`;        // Auto-coerces to string
 
 // ✅ Explicit .get() (clearer intent)
-s.count.get() > 10;
-s.count.get() + 5;
-`Hello, ${s.name.get()}`;
+useUser.count.get() > 10;
+useUser.count.get() + 5;
+`Hello, ${useUser.name.get()}`;
 
 // ✅ Both work in JSX
-<Text>{s.count}</Text>         // Renderer handles signal
-<Text>{s.count.get()}</Text>   // Explicit, also valid
+<Text>{useUser.count}</Text>         // Renderer handles signal
+<Text>{useUser.count.get()}</Text>   // Explicit, also valid
 
 // ✅ Both work in comparisons
-<Show when={s.count > 10} />       // Auto-coercion
-<Show when={s.count.get() > 10} /> // Explicit
+<Show when={useUser.count > 10} />       // Auto-coercion
+<Show when={useUser.count.get() > 10} /> // Explicit
 ```
 
 **Choose based on clarity preference** - both approaches are valid and work identically.
@@ -1390,8 +1397,8 @@ State is built on signals. Here's how to choose:
 **Example:**
 
 ```ts
-const count = createSignal(0);
-count.set(count.get() + 1); // Direct, minimal
+const useCount = createSignal(0);
+useCount.set(useCount.get() + 1); // Direct, minimal
 ```
 
 ---
@@ -1406,10 +1413,10 @@ count.set(count.get() + 1); // Direct, minimal
 **Example:**
 
 ```ts
-const user = createState({ name: "Ben", age: 30 });
-user.batch(() => {
-  user.name.set("Alice");
-  user.age.set(25);
+const useUser = createState({ name: "Ben", age: 30 });
+useUser.batch(() => {
+  useUser.name.set("Alice");
+  useUser.age.set(25);
 }); // All updates flush together
 ```
 
@@ -1480,7 +1487,7 @@ import { $ } from "@inspatial/kit/state";
 import { useSidebar } from "@inspatial/kit/navigation";
 
 // Consolidated hooks (top‑level)
-export const { isMinimized, action } = useSidebar;
+export const { isMinimized, action: sidebarAction } = useSidebar;
 export const isExpanded = $(() => !isMinimized.get());
 export const sidebarStateClass = $(() =>
   isMinimized.get() ? "sidebar-minimized" : "sidebar-expanded"
@@ -1492,7 +1499,7 @@ export function SidebarToggle() {
       className={SidebarStyle.toggle.getStyle({
         format: isMinimized.get() ? "minimized" : "expanded",
       })}
-      on:tap={() => action.setMinimized(!isMinimized.get())}
+      on:tap={() => sidebarAction.setMinimized(!isMinimized.get())}
     />
   );
 }
@@ -1507,7 +1514,7 @@ export function SidebarHeader({ title }: { title?: string }) {
 ```jsx
 import { $, createState } from "@inspatial/kit/state";
 
-export const ui = createState.in({
+export const useUI = createState.in({
   initialState: { isOpen: false, count: 0 },
   action: {
     toggle: { key: "isOpen", fn: (v: boolean) => !v },
@@ -1515,12 +1522,12 @@ export const ui = createState.in({
   },
 });
 
-export const { isOpen, count, action: uiAction } = ui;
+export const { isOpen, count, action: handleUI } = useUI;
 export const label = $(() => (isOpen.get() ? "Open" : "Closed"));
 
 // Usage
 <Text>{label}</Text>
-<Button on:tap={() => uiAction.toggle()}>Toggle ({count})</Button>
+<Button on:tap={() => handleUI.toggle()}>Toggle ({count})</Button>
 ```
 
 ### What You Get Back

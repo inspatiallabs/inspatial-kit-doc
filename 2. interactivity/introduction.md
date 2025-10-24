@@ -22,7 +22,7 @@ InSpatial State brings together the best of signals and state management with a 
 Before you start:
 
 - Basic understanding of [JavaScript/TypeScript](https://www.typescriptlang.org/docs/)
-- Basic understanding of [Widgets/Components](../1.%20graphical-user-interface/widgets-components🟡.md)
+- Basic understanding of [Widgets/Components](../1.%20graphical-user-interface/widgets-components/introduction.md)
 
 ### 🎮 Core Concepts
 
@@ -51,7 +51,8 @@ Use this when you need a single reactive value. Perfect for states and any stand
 import { createState } from "@inspatial/kit/state";
 
 const useCount = createState(0);
-useCount.value++;
+useCount.set(useCount.get() + 1);
+// or useCount.value++ (syntactic sugar for .get()/.set())
 ```
 
 ### II. Separation (Object) Pattern
@@ -61,8 +62,9 @@ Use this when you have multiple related values that belong together. Each proper
 ```ts
 import { createState } from "@inspatial/kit/state";
 
-const useCount = createState({ count: 0, step: 1 });
-useCount.count.value += counter.step.value;
+const useCounter = createState({ count: 0, step: 1 });
+useCounter.count.set(useCounter.count.get() + useCounter.step.get());
+// or useCounter.count.value += useCounter.step.value (syntactic sugar)
 ```
 
 ### III. Explicit Pattern
@@ -72,7 +74,7 @@ Use this when you need the full power: actions for organized logic and storage f
 ```ts
 import { createState } from "@inspatial/kit/state";
 
-const useCount = createState.in({
+const useCounter = createState.in({
   initialState: { count: 0, step: 1 },
   action: {
     increment: { key: "count", fn: (v: number, step: number) => v + step },
@@ -82,11 +84,12 @@ const useCount = createState.in({
 });
 
 // Usage with actions
-useCount.action.increment(useCount.step.value);
-useCount.action.reset();
+useCounter.action.increment(useCounter.step.get());
+useCounter.action.reset();
 
 // Or direct property access
-useCount.count.value += useCount.step.value;
+useCounter.count.set(useCounter.count.get() + useCounter.step.get());
+// or useCounter.count.value += useCounter.step.value (syntactic sugar)
 ```
 
 <details>

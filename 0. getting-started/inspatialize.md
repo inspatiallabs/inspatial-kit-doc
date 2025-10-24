@@ -1,9 +1,9 @@
-# INSPATIALIZE.md
+# INSPATIALIZE
 
 **InSpatial at a glance.** InSpatialize is a technical and mindset shift. To InSpatialize is to reimage legacy technology and patterns, freeing them from their constraints, and inviting them into a world where Reality is your Canvas. Here, your old ideas find new possibilities, paradigms and breakthroughs.
 InSpatialize frees you from the past and propels you into the future.
 
-## The Complete InSpatial Kit Component & Widget Development Guide
+## The Complete InSpatial Kit Development Guide
 
 > **Agentic Purpose:** This is your comprehensive reference for building InSpatial Kit components and widgets when you don't have direct access to the codebase. Think of this as your complete pattern library everything you need to build production-grade, universal components that work seamlessly across web, mobile, and spatial platforms.
 
@@ -11,15 +11,39 @@ InSpatialize frees you from the past and propels you into the future.
 
 ## Table of Contents
 
-1. [Core Philosophy & Architecture](#core-philosophy--architecture)
-2. [Interactivity (@in/teract)](#interactivity-interact)
-3. [Widgets & Components (@in/widget)](#widgets--components-inwidget)
-4. [Styling (@in/style)](#styling-instyle)
-5. [Routing & Navigation (TBD)](#routing--navigation-tbd)
-6. [Cloud Server & Backend (TBD)](#cloud-server--backend-tbd)
-7. [Testing & Specifications (TBD)](#testing--specifications-tbd)
-8. [Building For Dev & Production (TBD)](#building-for-dev--production-tbd)
-9. [Distribution (TBD)](#distribution-tbd)
+**1. [Core Philosophy & Architecture](#core-philosophy--architecture)**
+
+**2. [Interactivity** `(@in/teract)`**](#interactivity-interact)  
+&nbsp;&nbsp;&nbsp;&nbsp;• [Docs for Humans](https://github.com/inspatiallabs/inspatial-kit-doc/tree/master/2.%20interactivity)  
+&nbsp;&nbsp;&nbsp;&nbsp;• [Docs for Agents](https://github.com/inspatiallabs/inspatial-kit/blob/main/modules/in-teract/AGENTS.md)**
+
+**3. [Widgets & Components** `(@in/widget)`**](#widgets--components-inwidget)  
+&nbsp;&nbsp;&nbsp;&nbsp;• [Docs for Humans](https://github.com/inspatiallabs/inspatial-kit-doc/tree/master/1.%20graphical-user-interface/widgets-components)  
+&nbsp;&nbsp;&nbsp;&nbsp;• [Docs for Agents](https://github.com/inspatiallabs/inspatial-kit/blob/main/modules/in-widget/AGENTS.md)**
+
+**4. [Styling** `(@in/style)`**](#styling-instyle)  
+&nbsp;&nbsp;&nbsp;&nbsp;• [Docs for Humans](https://github.com/inspatiallabs/inspatial-kit-doc/tree/master/1.%20graphical-user-interface/styling)  
+&nbsp;&nbsp;&nbsp;&nbsp;• [Docs for Agents](https://github.com/inspatiallabs/inspatial-kit/blob/main/modules/in-style/AGENTS.md)**
+
+**5. [Routing & Navigation** `(@in/route)`**](#routing--navigation-inroute)  
+&nbsp;&nbsp;&nbsp;&nbsp;• [Docs for Humans](https://github.com/inspatiallabs/inspatial-kit-doc/tree/master/4.%20routing-navigation)  
+&nbsp;&nbsp;&nbsp;&nbsp;• [Docs for Agents](https://github.com/inspatiallabs/inspatial-kit/blob/main/modules/in-route/AGENTS.md)**
+
+**6. [Building for Dev & Production** `(@in/build)`**](#building-for-dev--production-inruntime)  
+&nbsp;&nbsp;&nbsp;&nbsp;• [Docs for Humans](https://github.com/inspatiallabs/inspatial-kit-doc/tree/master/7.%20building-dev-production)  
+&nbsp;&nbsp;&nbsp;&nbsp;• [Docs for Agents](https://github.com/inspatiallabs/inspatial-kit/blob/main/modules/in-build/AGENTS.md)**
+
+**7. [Testing & Specifications** `(@in/test)`**](#testing--specifications-invader)  
+&nbsp;&nbsp;&nbsp;&nbsp;• [Docs for Humans](https://github.com/inspatiallabs/inspatial-kit-doc/tree/master/6.%20testing-spec)  
+&nbsp;&nbsp;&nbsp;&nbsp;• [Docs for Agents](https://github.com/inspatiallabs/inspatial-kit/blob/main/modules/in-test/AGENTS.md)**
+
+**8. [Cloud Server & Backend** `(@in/cloud)`**](#cloud-server--backend-inspatialcloud)  
+&nbsp;&nbsp;&nbsp;&nbsp;• [Docs for Humans](#)  
+&nbsp;&nbsp;&nbsp;&nbsp;• [Docs for Agents](https://github.com/inspatiallabs/inspatial-kit/blob/main/modules/in-cloud/AGENTS.md)**
+
+**9. [Distribution** <span style="color: #f39c12;">(TBD)</span>**](#distribution-tbd)  
+&nbsp;&nbsp;&nbsp;&nbsp;• [Docs for Humans](#docs-for-humans)  
+&nbsp;&nbsp;&nbsp;&nbsp;• [Docs for Agents](#docs-for-agents)**
 
 ---
 
