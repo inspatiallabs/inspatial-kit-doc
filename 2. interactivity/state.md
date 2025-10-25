@@ -1,6 +1,6 @@
 # State
 
-State is InSpatial Kit's structured state management system built on top of signals. While signals give you reactive primitives, state gives you organized, scalable patterns for managing application data from simple to complex enterprise systems.
+State is InSpatial Kit's structured state management system built on top of signals. While signals give you reactive primitives, state gives you organized, scalable patterns for managing application data from simple to complex enterprise systems. Manage state seamlessly, whether it's local, server, or shared globally.
 
 If you're coming from [signals](./signal.md), you've been working with the **Scalar pattern** (single values). State introduces two powerful patterns: **Explicit** (everything in one place) and **Separation** (compose as you go). Both unlock features like batching, persistence, snapshots, and a unified action system that scales from prototypes to production.
 
@@ -15,6 +15,155 @@ Before diving in, you should have:
 - ✅ Basic understanding of [JavaScript](https://web.dev/learn/javascript)
 - ✅ Working knowledge of [TypeScript](https://www.typescriptlang.org/docs/handbook/intro.html)
 - ✅ Solid grasp of [Signals](./signal.md) (especially `.get()`, `.set()`, `$()`, and reactivity)
+
+---
+
+## Quick Start
+
+**Scalar (simplest):**
+
+```ts
+const useCount = createState(0);
+```
+
+**Explicit (apps, websites):**
+
+```ts
+const useUser = createState.in({
+  initialState: { name: "Ben", age: 30 },
+  action: { updateAge: { key: "age", fn: (age, n) => age + n } },
+  storage: { key: "useUser", backend: "local" },
+});
+```
+
+**Separation (games, extensions):**
+
+```ts
+const usePlayer = createState({ hp: 100, x: 0, y: 0 });
+const handleMove = createAction(usePlayer, {
+  moveX: { key: "x", fn: (x, dx) => x + dx },
+  moveY: { key: "y", fn: (y, dy) => y + dy },
+});
+createStorage(usePlayer, {
+  key: "usePlayer",
+  backend: "local",
+  include: ["hp"],
+});
+```
+
+---
+
+## How to Interact with State
+
+### 1. Basic Component with State
+
+```javascript
+// ✅ The InSpatial Way
+import { createState } from "@inspatial/kit/state";
+
+const Counter = () => {
+  const useCounter = createState({ count: 0 });
+  return () => (
+    <XStack on:tap={() => useCounter.count.set(useCounter.count.get() + 1)}>
+      Count: {useCounter.count}
+    </XStack>
+  );
+};
+```
+
+### 2. Conditional Rendering
+
+```javascript
+// ✅ The InSpatial Way
+import { createState } from "@inspatial/kit/state";
+
+const App = () => {
+  const useUI = createState({ isVisible: true });
+  return (
+    <XStack>
+      <Show when={useUI.isVisible}>{() => <Slot>Visible content</Slot>}</Show>
+      <Button on:tap={() => useUI.isVisible.set(!useUI.isVisible.get())}>
+        Toggle
+      </Button>
+    </XStack>
+  );
+};
+```
+
+### 3. List Rendering
+
+```javascript
+// ✅ The InSpatial Way
+import { createState } from "@inspatial/kit/state";
+
+const TodoList = () => {
+  const useTodos = createState({ todos: [{ id: 1, text: "Learn InSpatial" }] });
+  return (
+    <YStack>
+      <List each={useTodos.todos} track="id">
+        {(todo) => <Text>{todo.text}</Text>}
+      </List>
+    </YStack>
+  );
+};
+```
+
+### 4. Side Effects and Cleanup
+
+```javascript
+// ✅ The InSpatial Way
+createSideEffect(() => {
+  createTrigger("swipe", createResizeHandler(), {
+    platforms: ["dom", "native:ios", "native:android"],
+    fallback: "resize",
+  });
+});
+```
+
+### 5. Complex Reactive Expressions
+
+```javascript
+// ❌ DON'T DO THIS: Not reactive
+const useCounter = createState({ count: 0 });
+const message = `Count is: ${useCounter.count.get()}`; // Evaluates once only
+
+// ✅ DO THIS: Wrap in $() for reactivity
+import { createState, $ } from "@inspatial/kit/state";
+
+const useCounter = createState({ count: 0 });
+const message = $(() => `Count is: ${useCounter.count.get()}`); // Updates when count changes
+
+// Or inline in JSX:
+<XStack>{$(() => `Count is: ${useCounter.count.get()}`)}</XStack>
+
+// Auto-coercion also works (Symbol.toPrimitive):
+<XStack>{$(() => `Count is: ${useCounter.count}`)}</XStack>
+```
+
+### 6. State Signal Operations
+
+```typescript
+import { createState, $ } from "@inspatial/kit/state";
+
+// State-backed signal comparisons and derived values
+const useData = createState({ count: 5, status: "loading" });
+const isPositive = useData.count.gt(0); // count > 0
+const isZero = useData.count.eq(0); // count === 0
+const isEven = $(() => useData.count.get() % 2 === 0);
+
+// Derived values remain the same using $()
+const label = $(() => `Status: ${useData.status.get()}`);
+```
+
+### 10. View Literals for URLs
+
+```javascript
+// View literals with reactive interpolation (State)
+import { createState } from "@inspatial/kit/state";
+
+const useTemplate = createState({ templateId: 123 });
+const templateUrl = t`https://inspatial.store/template?id=${useTemplate.templateId}`;
+```
 
 ---
 
@@ -81,7 +230,7 @@ Before diving in, you should have:
 
 ---
 
-## State API Overview
+## InSpatial State Patterns
 
 **Import paths:**
 
@@ -89,8 +238,6 @@ Before diving in, you should have:
 - `@in/teract/state` (internal/module development)
 
 InSpatial State is the built-in state management system for InSpatial Kit. It provides structured, scalable abstractions on top of signals, with features designed for real-world applications: batching, persistence, snapshots, subscriptions, and a unified action system.
-
-### Two Patterns, Same Power
 
 | Pattern        | Best For                               | Key Feature                                            |
 | -------------- | -------------------------------------- | ------------------------------------------------------ |
@@ -100,7 +247,7 @@ InSpatial State is the built-in state management system for InSpatial Kit. It pr
 
 **Choose based on your use case.** All patterns share the same capabilities batch, reset, snapshot, subscribe, and trigger system.
 
-#### Scalar pattern
+### Scalar pattern
 
 When you use `createState()` by passing a direct initial value, you're using what's called the **Scalar Pattern**. This pattern is essentially a convenient wrapper around the `createSignal()` API (available from `@inspatial/kit/signal`) and is fully interchangeable with it. This is the only scenario where you can swap `createState` and `createSignal` which is particularly useful for developers familiar with Solid's `createSignal`. However, in other patterns such as Separation (passing objects) and Explicit, `createState` and `createSignal` are **not** interchangeable.
 
@@ -117,7 +264,7 @@ useCounter.set(5); // or useCounter.value = 5
 useCounter.peek();
 ```
 
-#### Explicit pattern
+### Explicit pattern
 
 ```ts
 const useCounter = createState.in({
@@ -133,7 +280,7 @@ useCounter.action.increment();
 useCounter.count.get();
 ```
 
-#### Separation pattern (advanced)
+### Separation pattern (advanced)
 
 ```ts
 const useGame = createState({ x: 0, y: 0, hp: 100, score: 0 });
@@ -341,7 +488,7 @@ If you need custom serialization, provide `serialize`/`deserialize` while still 
 
 ### Choosing the Right State Pattern
 
-**All patterns have the same power. choose based on ergonomics and use case.**
+**Scalar is for simple rpimitive state. While both Separation and Explicit patterns have the same power. choose based on ergonomics and use case.**
 
 #### Decision Tree
 
@@ -371,113 +518,19 @@ If you need custom serialization, provide `serialize`/`deserialize` while still 
 
 ---
 
-#### Quick Examples
+## You Might Not Need Side Effects (Or Maybe You Do)
 
-**Scalar (simplest):**
+Side effects are actions your app, website, games or XR experience takes in response to changes like fetching data, updating a render target, logging, or starting a timer that “reach outside” of your normal rendering flow. Side effects let your code interact with the world or perform setup and cleanup when things change. Think of them as the way your app responds to signals or state updates, beyond just showing new GUI. They're super handy for things you can't express through pure reactivity alone like animations, subscriptions, or syncing with services.
 
-```ts
-const useCount = createState(0);
-```
+InSpatial provides **three ways** to handle side effects:
 
-**Explicit (apps, websites):**
+1. **Lifecycle trigger props**
+2. **`watch` + `onDispose`**
+3. **`createSideEffect`**.
 
-```ts
-const useUser = createState.in({
-  initialState: { name: "Ben", age: 30 },
-  action: { updateAge: { key: "age", fn: (age, n) => age + n } },
-  storage: { key: "useUser", backend: "local" },
-});
-```
+Each method serves a specific purpose. Mastering when and how to apply them is what separates well architected, scalable software from solutions that risk instability or performance issues.
 
-**Separation (games, extensions):**
-
-```ts
-const usePlayer = createState({ hp: 100, x: 0, y: 0 });
-const handleMove = createAction(usePlayer, {
-  moveX: { key: "x", fn: (x, dx) => x + dx },
-  moveY: { key: "y", fn: (y, dy) => y + dy },
-});
-createStorage(usePlayer, {
-  key: "usePlayer",
-  backend: "local",
-  include: ["hp"],
-});
-```
-
----
-
-## How to Interact with State
-
-### 1. Basic Component with State
-
-```javascript
-// ✅ The InSpatial Way
-import { createState } from "@inspatial/kit/state";
-
-const Counter = () => {
-  const useCounter = createState({ count: 0 });
-  return () => (
-    <XStack on:tap={() => useCounter.count.set(useCounter.count.get() + 1)}>
-      Count: {useCounter.count}
-    </XStack>
-  );
-};
-```
-
-### 2. Conditional Rendering
-
-```javascript
-// ✅ The InSpatial Way
-import { createState } from "@inspatial/kit/state";
-
-const App = () => {
-  const useUI = createState({ isVisible: true });
-  return (
-    <XStack>
-      <Show when={useUI.isVisible}>{() => <Slot>Visible content</Slot>}</Show>
-      <Button on:tap={() => useUI.isVisible.set(!useUI.isVisible.get())}>
-        Toggle
-      </Button>
-    </XStack>
-  );
-};
-```
-
-### 3. List Rendering
-
-```javascript
-// ✅ The InSpatial Way
-import { createState } from "@inspatial/kit/state";
-
-const TodoList = () => {
-  const useTodos = createState({ todos: [{ id: 1, text: "Learn InSpatial" }] });
-  return (
-    <YStack>
-      <List each={useTodos.todos} track="id">
-        {(todo) => <Text>{todo.text}</Text>}
-      </List>
-    </YStack>
-  );
-};
-```
-
-### 4. Effects and Cleanup
-
-```javascript
-// ✅ The InSpatial Way
-createSideEffect(() => {
-  createTrigger("swipe", createResizeHandler(), {
-    platforms: ["dom", "native:ios", "native:android"],
-    fallback: "resize",
-  });
-});
-```
-
-#### You Might Not Need Side Effects (Or Maybe You Do)
-
-InSpatial provides **three ways** to handle lifecycle and side effects: **trigger props**, **`watch` + `onDispose`**, and **`createSideEffect`**. Each has its place.
-
-**The 85/15 Rule:**
+### The 85/15 Rule:
 
 ~85% of your use cases will use:
 
@@ -493,7 +546,7 @@ InSpatial provides **three ways** to handle lifecycle and side effects: **trigge
 
 ---
 
-### Three Ways to Handle Lifecycle & Effects
+### Three Ways to Handle Lifecycle & Side Effects
 
 #### **1. Lifecycle Trigger Props** (Component-bound setup)
 
@@ -1168,191 +1221,6 @@ await nextTick(); // Waits for natural batch cycle
 
 ---
 
-### 5. Conditional Classes
-
-```javascript
- // ✅ The InSpatial Way
-<Button className="btn" class:active={isActive}>
-```
-
-#### Conditionally Rendering Computed/Reactive Values
-
-##### `Show`
-
-```jsx
-// ❌  DON'T DO THIS: It won't react properly
-<Button on:tap={() => useTheme.action.handleToggle()}>
-  {$(() =>
-    useTheme.mode.get() === "dark" ? <LightModeIcon /> : <DarkModeIcon />
-  )}
-</Button>
-
-// ✅ DO THIS: Use Show for reactive conditional rendering
-<Button on:tap={() => useTheme.action.handleToggle()}>
-  <Show
-    when={$(() => useTheme.mode.get() === "dark")}
-    otherwise={() => <DarkModeIcon />}
-  >
-    {() => <LightModeIcon />}
-  </Show>
-</Button>
-```
-
-##### `Choose` - The InSpatial Switch Statement
-
-```jsx
-// ❌  DON'T DO THIS: It won't react
-export function InputField({ variant }) {
-  return (
-    <>
-      {(() => {
-        switch (variant.get()) {
-          case "emailfield":
-            return <EmailField />;
-          case "searchfield":
-            return <SearchField />;
-          default:
-            return <TextField />;
-        }
-      })()}
-    </>
-  );
-}
-
-// ✅ DO THIS: Use Choose for multi-branch reactive logic
-import { Choose } from "@inspatial/kit/control-flow";
-
-export function InputField({ variant }) {
-  return (
-    <Choose
-      cases={[
-        {
-          when: $(() => variant.get() === "emailfield"),
-          children: () => <EmailField />,
-        },
-        {
-          when: $(() => variant.get() === "searchfield"),
-          children: () => <SearchField />,
-        },
-      ]}
-      otherwise={() => <TextField />}
-    />
-  );
-}
-
-// Or without JSX tags:
-export function InputField({ variant }) {
-  return Choose({
-    cases: [
-      {
-        when: $(() => variant.get() === "emailfield"),
-        children: () => <EmailField />,
-      },
-      {
-        when: $(() => variant.get() === "searchfield"),
-        children: () => <SearchField />,
-      },
-    ],
-    otherwise: () => <TextField />,
-  });
-}
-```
-
-#### Difference Between Show & Choose
-
-- **Show** and **Choose** are both used to react to conditional values
-- Use `<Show>` for **binary conditions** (this or that):
-  - Example: Show loading spinner OR content
-  - Example: Show dark mode icon OR light mode icon
-- Use `<Choose>` for **multi-branch logic** (this, that, or another thing):
-  - Example: Show different input types (email, search, text, password)
-  - Example: Show different UI states (loading, error, success, empty)
-
-### 6. Complex Reactive Expressions
-
-```javascript
-// ❌ DON'T DO THIS: Not reactive
-const useCounter = createState({ count: 0 });
-const message = `Count is: ${useCounter.count.get()}`; // Evaluates once only
-
-// ✅ DO THIS: Wrap in $() for reactivity
-import { createState, $ } from "@inspatial/kit/state";
-
-const useCounter = createState({ count: 0 });
-const message = $(() => `Count is: ${useCounter.count.get()}`); // Updates when count changes
-
-// Or inline in JSX:
-<XStack>{$(() => `Count is: ${useCounter.count.get()}`)}</XStack>
-
-// Auto-coercion also works (Symbol.toPrimitive):
-<XStack>{$(() => `Count is: ${useCounter.count}`)}</XStack>
-```
-
-### 7. Async Components
-
-```javascript
-// ✅ The InSpatial async component pattern
-const PostCard = async ({ id }: PostID) => {
-  const response = await fetch(`/api/story/${postId}`);
-  const story = await response.json();
-
-  return (
-    <YStack className="story">
-      <Text>{story.title}</Text>
-      <Text>By {story.author}</Text>
-    </YStack>
-  );
-};
-
-// Usage with error handling
-<PostCard
-  id={123}
-  fallback={() => <XStack>Loading...</XStack>}
-  catch={({ error }) => <XStack>Error: {error.message}</XStack>}
-/>;
-```
-
-### 8. State Signal Operations (Advanced)
-
-```typescript
-import { createState, $ } from "@inspatial/kit/state";
-
-// State-backed signal comparisons and derived values
-const useData = createState({ count: 5, status: "loading" });
-const isPositive = useData.count.gt(0); // count > 0
-const isZero = useData.count.eq(0); // count === 0
-const isEven = $(() => useData.count.get() % 2 === 0);
-
-// Derived values remain the same using $()
-const label = $(() => `Status: ${useData.status.get()}`);
-```
-
-### 9. Event Handling with Modifiers
-
-```javascript
-// ✅ Different event modifiers
-<Button on:tap={() => console.log('normal')}>Click</Button>
-<Button on-once:tap={() => console.log('only once')}>Click Once</Button>
-<View on-passive:scroll={() => console.log('passive scroll')}>Scrollable</View>
-<Button on-prevent:tap={() => console.log('prevented')}>Prevent Default</Button>
-
-// State-driven event handlers
-const useCounter = createState({ count: 0 });
-<Button on:tap={() => useCounter.count.set(useCounter.count.get() + 1)}>
-  Increment ({useCounter.count})
-</Button>
-```
-
-### 10. View Literals for URLs
-
-```javascript
-// View literals with reactive interpolation (State)
-import { createState } from "@inspatial/kit/state";
-
-const useTemplate = createState({ templateId: 123 });
-const templateUrl = t`https://inspatial.store/template?id=${useTemplate.templateId}`;
-```
-
 ## Understanding Signal Auto-Coercion in State
 
 Each property in a `createState` object is a signal, which means it benefits from `Symbol.toPrimitive` auto-coercion:
@@ -1445,11 +1313,11 @@ useUser.batch(() => {
 
 Both share the same reactive foundation. Choose based on **structure** and **features**, not performance. State = signals + conveniences.
 
-## State Destructure
+## Destructuring or Consolidating State
 
 #### Hoist shared derived values and actions once; use them everywhere
 
-State Destructure means you define commonly used derived states and actions in one place at the top of a module, then use those everywhere else. Think of it like preparing your ingredients on a tray before you cook—less reaching, fewer mistakes, and everything stays in sync.
+State Destructure means you define commonly used derived states and actions in one place at the top of a module, then use those everywhere else. Think of it like preparing your ingredients on a tray before you cook less reaching, fewer mistakes, and everything stays in sync.
 
 > **Terminology:** A “derived state is a `$(() => ...)` value built from other state; it auto‑updates when inputs change.
 

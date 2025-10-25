@@ -22,3 +22,105 @@ Control flows allow you to...
 - **JSX Children in Control Flow Components:** When using components like `<Show>` and `<List>`, ensure their render function children return either a _single root element_ or a `Fragment` (`<>...</>`) if rendering multiple sibling elements. This prevents unexpected rendering issues.
 - `**Fn`\*\* provides a render closure; inside it, you can read the table header groups and row model.
 - **`R.c(tag, props, ...children)`** creates elements; `R.text(string)` creates text nodes.
+
+
+
+### Conditional Classes
+
+```javascript
+ // ✅ The InSpatial Way
+<Button className="btn" class:active={isActive}>
+```
+
+#### Conditionally Rendering Computed/Reactive Values
+
+##### `Show`
+
+```jsx
+// ❌  DON'T DO THIS: It won't react properly
+<Button on:tap={() => useTheme.action.handleToggle()}>
+  {$(() =>
+    useTheme.mode.get() === "dark" ? <LightModeIcon /> : <DarkModeIcon />
+  )}
+</Button>
+
+// ✅ DO THIS: Use Show for reactive conditional rendering
+<Button on:tap={() => useTheme.action.handleToggle()}>
+  <Show
+    when={$(() => useTheme.mode.get() === "dark")}
+    otherwise={() => <DarkModeIcon />}
+  >
+    {() => <LightModeIcon />}
+  </Show>
+</Button>
+```
+
+##### `Choose` - The InSpatial Switch Statement
+
+```jsx
+// ❌  DON'T DO THIS: It won't react
+export function InputField({ variant }) {
+  return (
+    <>
+      {(() => {
+        switch (variant.get()) {
+          case "emailfield":
+            return <EmailField />;
+          case "searchfield":
+            return <SearchField />;
+          default:
+            return <TextField />;
+        }
+      })()}
+    </>
+  );
+}
+
+// ✅ DO THIS: Use Choose for multi-branch reactive logic
+import { Choose } from "@inspatial/kit/control-flow";
+
+export function InputField({ variant }) {
+  return (
+    <Choose
+      cases={[
+        {
+          when: $(() => variant.get() === "emailfield"),
+          children: () => <EmailField />,
+        },
+        {
+          when: $(() => variant.get() === "searchfield"),
+          children: () => <SearchField />,
+        },
+      ]}
+      otherwise={() => <TextField />}
+    />
+  );
+}
+
+// Or without JSX tags:
+export function InputField({ variant }) {
+  return Choose({
+    cases: [
+      {
+        when: $(() => variant.get() === "emailfield"),
+        children: () => <EmailField />,
+      },
+      {
+        when: $(() => variant.get() === "searchfield"),
+        children: () => <SearchField />,
+      },
+    ],
+    otherwise: () => <TextField />,
+  });
+}
+```
+
+#### Difference Between Show & Choose
+
+- **Show** and **Choose** are both used to react to conditional values
+- Use `<Show>` for **binary conditions** (this or that):
+  - Example: Show loading spinner OR content
+  - Example: Show dark mode icon OR light mode icon
+- Use `<Choose>` for **multi-branch logic** (this, that, or another thing):
+  - Example: Show different input types (email, search, text, password)
+  - Example: Show different UI states (loading, error, success, empty)
